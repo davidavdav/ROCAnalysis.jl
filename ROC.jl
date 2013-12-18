@@ -1,6 +1,10 @@
 ## ROC.jl  Types and functions for performing ROC analysis
 ## (c) 2013 David A. van Leeuwen. 
 
+module ROC
+
+export roc, chllr, eerch, pav
+
 using CHull
 
 #reload("roctypes.jl")
@@ -9,8 +13,6 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=true)
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
-    #(θ, nc) = (x, 1-tc)
-    println(tc, "--", nc)
     ## now we can compute pmiss and pfa
     pfa = [1, 1 - cumsum(nc)/length(non)]
     pmiss = [0, cumsum(tc)/length(tar)]
@@ -50,7 +52,7 @@ function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
             end
         end
     end
-    println(remove)
+#    println(remove)
     if length(remove)>0
         keep = setdiff(1:length(tc),remove)
         (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
@@ -95,7 +97,7 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}, laplace::Bool
 end
 
 ## eerch: computes the eer using the convex hull method
-function eerch(pfa::Vector{Float64}, pmiss::Vector{Float64}, ch::BitVector)
+function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
     i = find(diff(sign(pfa[ch] - pmiss[ch])) .!= 0)[1]
@@ -107,4 +109,34 @@ function eerch(pfa::Vector{Float64}, pmiss::Vector{Float64}, ch::BitVector)
     (ax,bx) = pfa[ch][i:i+1]
     (ay,by) = pmiss[ch][i:i+1]
     return ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
+end
+
+## pav(y) returns the isotonic regression of the predictor y.
+## it is slow, and possibly wrong.   
+function pav{T<:Real}(y::Vector{T})
+    yy = convert(Vector{Float64}, y)
+    n = length(y)
+    i::Int=1
+    while i<n
+        while yy[i+1] >= yy[i] 
+            if i<n-1
+                i += 1
+            else
+                return yy
+            end
+#            println("i ", i)
+        end
+        ie = i+1
+#	println("range ", i, " ", ie)
+        yy[i:ie] = mean(y[i:ie])
+#       println("yy+ ", yy')
+        while i>1 && yy[i-1] > yy[i]
+            i -= 1
+            yy[i:ie] = mean(y[i:ie])
+        end
+#        println("yy- ", yy')
+    end
+    yy
+end
+
 end
