@@ -3,7 +3,7 @@
 
 module ROC
 
-export roc, chllr, eerch, pav
+export roc, chllr, eerch, pav, eer
 
 using CHull
 
@@ -110,6 +110,23 @@ function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector
     (ay,by) = pmiss[ch][i:i+1]
     return ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
 end
+
+## just a simple EER approximation
+function eer(tar::Vector, non::Vector, method=:naive) 
+    ntar = length(tar)
+    nnon = length(non)
+    so = sortperm(vcat(non,tar))
+    truth = vcat(zeros(nnon), ones(ntar))[so]
+    pfa = 1 - cumsum(1-truth)/nnon
+    pmiss = cumsum(truth)/ntar
+    if method==:naive
+        i = indmin(abs(pfa-pmiss))
+        res = (pfa[i] + pmiss[i]) / 2
+    end
+    res, (pfa, pmiss, vcat(non,tar)[so])
+end
+
+
 
 ## pav(y) returns the isotonic regression of the predictor y.
 ## it is slow, and possibly wrong.   
