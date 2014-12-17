@@ -1,5 +1,7 @@
 ROC.jl
 ======
+[![Build Status](https://travis-ci.org/davidavdav/ROC.jl.svg?branch=master)](https://travis-ci.org/davidavdav/ROC.jl)
+
 
 Receiver Operating Characteristics and functions for evaluation probabilistic binary classifiers
 
