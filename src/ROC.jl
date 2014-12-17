@@ -6,6 +6,7 @@ module ROC
 export ROC, roc, chllr, eerch, pav, eer, detplot
 
 using CHull
+using Winston
 
 include("roctypes.jl")
 include("roc.jl")
