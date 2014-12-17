@@ -3,7 +3,7 @@
 
 module ROC
 
-export ROC, roc, chllr, eerch, pav, eer
+export ROC, roc, chllr, eerch, pav, eer, detplot
 
 using CHull
 
@@ -11,5 +11,6 @@ include("roctypes.jl")
 include("roc.jl")
 include("eer.jl")
 include("pav.jl")
+include("plot.jl")
 
 end
