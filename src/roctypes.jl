@@ -4,10 +4,10 @@ type TNT{T<:Real}
     non::Vector{T}
 end
 
-type Roc 
-    pfa::Vector
-    pmiss::Vector
-    ch::Vector
-    θ::Vector
-    llr::Vector
+type Roc{T<:Real}
+    pfa::Vector{T}
+    pmiss::Vector{T}
+    ch::BitArray
+    θ::Vector{T}
+    llr::Vector{T}
 end
