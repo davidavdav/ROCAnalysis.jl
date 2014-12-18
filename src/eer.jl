@@ -1,4 +1,6 @@
 ## eerch: computes the eer using the convex hull method
+eerch(r::Roc) = eerch(r.pfa, r.pmiss, r.ch)
+
 function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs

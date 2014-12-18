@@ -6,7 +6,9 @@ function Winston.plot(r::Roc)
     ylabel("Pmiss")
 end
 
+## R terminology, quantile function qnorm() and cumulative distribution pnorm()
 qnorm(x) = √2 * erfinv(2x-1)
+pnorm(x) = (1 + erf(x/√2)) / 2 
 
 function detplot(r::Roc, nr=1)
     if nr==1
@@ -40,4 +42,16 @@ function detplot(r::Roc, nr=1)
     col = string("krgmcb"[(nr-1) % 6 + 1])
     lty = ["-", "--", ";"][div(nr-1,6) + 1]
     oplot(qnorm(r.pfa), qnorm(r.pmiss), lty * col)
+end
+
+function llrplot(r::Roc)
+    mi = max(minimum(r.llr), minimum(r.θ))
+    ma = min(maximum(r.llr), maximum(r.θ))
+    ran = [mi,ma]
+    plot(r.θ, r.llr)
+    xlim(ran)
+    ylim(ran)
+    title("LLR plot")
+    xlabel("score")
+    ylabel("LLR")
 end
