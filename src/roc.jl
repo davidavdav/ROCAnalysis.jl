@@ -6,7 +6,7 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=true)
     pfa = [1, 1 - cumsum(nc)/length(non)]
     pmiss = [0, cumsum(tc)/length(tar)]
     ## convex hull and llr
-    @time ch, llr = chllr(tc, nc, xo, laplace)
+    ch, llr = chllr(tc, nc, xo, laplace=laplace)
     ## remove points on the ROC in the middle of a horizontal or vertical segment
     changes = changepoints(pfa, pmiss)
     (pfa, pmiss, ch) = map(a -> a[changes], (pfa, pmiss, ch))
@@ -52,7 +52,7 @@ end
     
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
-function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}, laplace::Bool=true)
+function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true, fast::Bool=true)
     if laplace
         tc = [1, 0, tc, 1, 0]
         nc = [0, 1, nc, 0, 1]
@@ -60,11 +60,17 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}, laplace::Bool
     end
     ntar = sum(tc)
     nnon = sum(nc)
-    pfa = [1, 1 - cumsum(nc)/nnon]
-    pmiss = [0, cumsum(tc)/ntar]
-    ## convex hull
-    @time hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
-    index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
+    if fast
+        pfa = [1, 1 - cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
+        pmiss = [0, cumsum(tc)/ntar]
+        index = rochull(pfa, pmiss)
+    else
+        pfa = [1, 1 - cumsum(nc)/nnon]
+        pmiss = [0, cumsum(tc)/ntar]
+        ## convex hull
+        hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
+        index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
+    end
     ch = falses(length(pfa))
     ch[index] = true
     ## LLR
@@ -79,6 +85,7 @@ end
 
 ## returns true if test point is "left" of line (x1,y1) -- (x2,y2)
 ## positive: left, negative: right, zero: on
+## This works best with rationals, but that makes it slow 
 function isleft{T}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
     (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1) 
 end
