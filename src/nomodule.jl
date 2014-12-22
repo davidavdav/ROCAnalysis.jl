@@ -6,5 +6,6 @@ require("roctypes.jl")
 
 include("roc.jl")
 include("eer.jl")
+include("cllr.jl")
 include("pav.jl")
 include("plot.jl")

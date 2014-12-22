@@ -6,7 +6,7 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=true)
     pfa = [1, 1 - cumsum(nc)/length(non)]
     pmiss = [0, cumsum(tc)/length(tar)]
     ## convex hull and llr
-    ch, llr = chllr(tc, nc, xo, laplace)
+    @time ch, llr = chllr(tc, nc, xo, laplace)
     ## remove points on the ROC in the middle of a horizontal or vertical segment
     changes = changepoints(pfa, pmiss)
     (pfa, pmiss, ch) = map(a -> a[changes], (pfa, pmiss, ch))
@@ -27,27 +27,19 @@ end
 ## bins scores that are the same into aggredated score counts
 function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     nc = 1 - tc
-    changes = find([true, diff(xo) .!= 0, true])                  # points where threshold change
-    θ = xo                      # threshold
-    remove = Int[]
+    changes = find([true, diff(xo) .!= 0, true]) # points where threshold change
+    θ = xo                                       # threshold
+    keep = trues(length(tc))
     for i=1:length(changes)-1
         start = changes[i]
         stop = changes[i+1]-1
         if stop>start
             tc[start] = sum(tc[start:stop])
             nc[start] = sum(nc[start:stop])
-            for j=start+1:stop 
-                push!(remove,j)
-            end
+            keep[start+1:stop]= false
         end
     end
-#    println(remove)
-    if length(remove)>0
-        keep = setdiff(1:length(tc),remove)
-        (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
-    else
-        keep = trues(length(tc))
-    end
+    (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
     return θ, tc, nc, keep
 end
 
@@ -71,7 +63,7 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}, laplace::Bool
     pfa = [1, 1 - cumsum(nc)/nnon]
     pmiss = [0, cumsum(tc)/ntar]
     ## convex hull
-    hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
+    @time hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
     index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
     ch = falses(length(pfa))
     ch[index] = true
@@ -83,5 +75,50 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}, laplace::Bool
     else
         return ch, llr
     end
+end
+
+## returns true if test point is "left" of line (x1,y1) -- (x2,y2)
+## positive: left, negative: right, zero: on
+function isleft{T}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
+    (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1) 
+end
+
+## Andrew's Monotone Chain Algorithm, from http://geomalgorithms.com/a10-_hull-1.html
+## (ignoring the C-code:-)
+## points are (pmiss, pfa), pmiss (x) is increasing, pfa (y) is decreasing
+## we implictly add a point at (2,2) that is on the convex hull
+function rochull{T}(pfa::Vector{T}, pmiss::Vector{T})
+    two = 2one(T)
+    n = length(pmiss)
+    ## minmin and minmax
+    i = 1
+    while i < n
+        if pmiss[i+1] == pmiss[1]
+            i += 1
+        else
+            break
+        end
+    end
+    minmin = i
+    minmax = 1
+    ## maxmin and maxmax
+    maxmin = maxmax = n+1       # virtual point for now
+    stack = [minmin]
+    for i=minmin+1:n
+        if isleft(pmiss[minmin], pfa[minmin], two, two, pmiss[i], pfa[i]) ≥ zero(T)
+            continue
+        end
+        while length(stack) ≥ 2
+            if isleft(pmiss[stack[end-1]], pfa[stack[end-1]],
+                      pmiss[stack[end]], pfa[stack[end]], pmiss[i], pfa[i]) > zero(T)
+                break
+            else
+                pop!(stack)
+            end
+        end
+        push!(stack, i)
+    end
+    unshift!(stack, minmax)
+    stack
 end
 

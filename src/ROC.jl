@@ -3,14 +3,16 @@
 
 module ROC
 
-export ROC, TNT, roc, chllr, eerch, pav, eer, detplot, llrplot, qnorm, pnorm
+export ROC, TNT, roc, chllr, eerch, pav, eer, detplot, llrplot, qnorm, pnorm, cllr
 
 using CHull
 using Winston
+using NumericExtensions
 
 include("roctypes.jl")
 include("roc.jl")
 include("eer.jl")
+include("cllr.jl")
 include("pav.jl")
 include("plot.jl")
 
