@@ -5,9 +5,9 @@ type TNT{T<:Real}
 end
 
 type Roc{T<:Real}
-    pfa::Vector{T}
-    pmiss::Vector{T}
+    pfa::Vector{Float64}
+    pmiss::Vector{Float64}
     ch::BitArray
     θ::Vector{T}
-    llr::Vector{T}
+    llr::Vector{Float64}
 end

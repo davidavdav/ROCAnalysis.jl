@@ -5,10 +5,13 @@ ROC.jl
 
 Receiver Operating Characteristics and functions for evaluation probabilistic binary classifiers. 
 
-Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl).  This implementation is more geared towards: 
+Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl).
+
+Our implementation is more geared towards:
  - large amounts of data, with efficient ROC statistics calculation
+ - Cost function analysis
  - Detection Error Trade-off (DET) analysis
- - ROC convex hull computation and EER-interpretation 
+ - ROC convex hull computation, analysis and EER-interpretation
  - Optimal Likelihood Ratio computation
 
 Synopsis
@@ -30,6 +33,24 @@ detplot(r)
 ## Make an `LLR' plot: score-to-optimal-LLR mapping, r.θ, vs. r.llr
 llrplot(r)
 ```
+
+Receiver Operating Cheracteristic
+----
+A binary classifier maps an input `x` to one of two classes, `A` and `B`.  Internally, every classifier ends up producing some form of a scalar metric `s`, which can be thresholded to produce a decision.
+
+There are two possible "senses" of this internal scalar:
+- higher values of `s` indicate higher probability of `A`
+- higher values of `s` indicate higher probability of `B`
+There are of course also many different interpretations of the classes `A` and `B`.  For instance, in biometrics `A` could mean "same indicidual" and `B` "different individual".  The corresponding senses of `s` then have an interpretation
+- score-like: a higher value means a better match
+- distance-like: a higher value means a larger difference.
+
+Because of this package we want to focus on a probabilistic interpretation of the scalar `s`, we take the "score-like" interpretation of `s`, i.e., higher values of `s` correspond to a higher likelihood of the class-of-interest to be associated to the input of the classifier.  If your classifier is, in fact, a distance metric `d`, you could work with `s=-d` or `s=1/d` or any other strictly decreasing function.
+
+
+
+Error rates
+------
 
 Notes
 -----
