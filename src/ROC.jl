@@ -3,7 +3,7 @@
 
 module ROC
 
-export ROC, roc, chllr, eerch, pav, eer, detplot, llrplot, qnorm, pnorm
+export ROC, TNT, roc, chllr, eerch, pav, eer, detplot, llrplot, qnorm, pnorm
 
 using CHull
 using Winston

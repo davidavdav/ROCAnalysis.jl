@@ -14,6 +14,8 @@ Our implementation is more geared towards:
  - ROC convex hull computation, analysis and EER-interpretation
  - Optimal Likelihood Ratio computation
 
+The development roadmap is largely based on the functionality in a similar R package [ROC](https://github.com/davidavdav/ROC). 
+
 Synopsis
 ----
 ```julia
@@ -41,16 +43,27 @@ A binary classifier maps an input `x` to one of two classes, `A` and `B`.  Inter
 There are two possible "senses" of this internal scalar:
 - higher values of `s` indicate higher probability of `A`
 - higher values of `s` indicate higher probability of `B`
-There are of course also many different interpretations of the classes `A` and `B`.  For instance, in biometrics `A` could mean "same indicidual" and `B` "different individual".  The corresponding senses of `s` then have an interpretation
+There are of course also many different interpretations of the classes `A` and `B`.  For instance, in biometrics `B` could mean "same individual" and `A` "different individual".  The corresponding senses of `s` then have an interpretation
 - score-like: a higher value means a better match
 - distance-like: a higher value means a larger difference.
 
-Because of this package we want to focus on a probabilistic interpretation of the scalar `s`, we take the "score-like" interpretation of `s`, i.e., higher values of `s` correspond to a higher likelihood of the class-of-interest to be associated to the input of the classifier.  If your classifier is, in fact, a distance metric `d`, you could work with `s=-d` or `s=1/d` or any other strictly decreasing function.
+Because of this package we want to focus on a probabilistic interpretation of the scalar `s`, we take the "score-like" interpretation of `s`, i.e., higher values of `s` correspond to a higher likelihood of the class-of-interest to be associated to the input of the classifier.  If your classifier is, in fact, a distance metric `d`, you could work with `s=-d` or `s=1/d` or any other strictly decreasing function.  Alternatively, you can swap aroung the label of the class of interest. 
 
+As the name suggests, a classifier is supposed to make decisions.  Decisions can be thesholded against a fixed `θ` such that:
+- if `s>θ`, decide class `B`
+- if `s<θ`, decide class `A`
 
+For eavluating the classifier, we need a supervised set of trials, i.e., for each scalar score `s` we need a label indicating the true class of the trial that led to score `s`.  Because there are two classes, two types of errors can be made:
+- false positives: `s>θ` while in fact the true label is `A`
+- false negatives: `s<θ` while in fact the true label is `B`.
+
+The _Receiver Operating Characteristic_ (ROC) is a graph that shows how the fractions of the false positives and false negatives change with varying `θ`, for a fixed set of scores `s`.  
 
 Error rates
 ------
+In this package, we focus at analysing everything in terms of _error rates_.  Traditionally, researchers have used ROC curves where one of the axes is used to describe the complement of an error rate.  Specifically, one often sees a "true positive rate" versus a "false positive rate", where the true positive rate is the complement of the false negative rate.  There is no real objective way to judge whether one analysis is any better than the other, usually the choice is largely dependent on traditions in the area of the research you're in.
+
+There are many different names of the error rates in different scientific disciplines.  
 
 Notes
 -----
