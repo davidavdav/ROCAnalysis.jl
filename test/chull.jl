@@ -28,3 +28,12 @@ function test()
     end
     return pfa, pmiss, a, b
 end
+
+function prof()
+    N = 1000_000
+    tar = 2 + 2randn(N)
+    non = -2 + 2randn(N)
+    Profile.clear()
+    @profile roc(tar, non)
+    Profile.print(format=:flat)
+end
