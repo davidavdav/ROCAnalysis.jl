@@ -30,9 +30,14 @@ function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     changes = find([true, diff(xo) .!= 0, true]) # points where threshold change
     θ = xo                                       # threshold
     keep = trues(length(tc))
-    for i=1:length(changes)-1
+    @inbounds for i=1:length(changes)-1
         start = changes[i]
         stop = changes[i+1]-1
+#        for j=start+1:stop
+#            tc[start] += tc[j]
+#            nc[start] += nc[j]
+#            keep[j] = false
+#        end
         if stop>start
             tc[start] = sum(tc[start:stop])
             nc[start] = sum(nc[start:stop])
@@ -42,7 +47,6 @@ function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
     return θ, tc, nc, keep
 end
-
 ## This finds the chnge points on the ROC (the corner points)
 function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
     (const_pfa, const_pmiss) = map(a -> diff(a) .== 0, (pfa, pmiss)) # no changes
