@@ -57,16 +57,48 @@ For evaluating the classifier, we need a set of supervised trials, i.e., for eac
 - false positives: `s>θ` while in fact the true label is `A`
 - false negatives: `s<θ` while in fact the true label is `B`.
 
-The _Receiver Operating Characteristic_ (ROC) is a graph that shows how the fractions of the false positives and false negatives change with varying `θ`, for a fixed set of scores `s`.  
+The _Receiver Operating Characteristic_ (ROC) is a graph that shows how the fractions of the false positives and false negatives change with varying `θ`, for a fixed set of scores `s`.
+
+Because we come from automatic speaker recognition, we tend to use the following terminology for the classes
+- *target*, the higher scores, a.k.a. same source, true client, ...
+- *non-target*, the lower scores, a.k.a. different source, impostor, ...
 
 Error rates
 ------
 In this package, we focus at analysing everything in terms of _error rates_.  Traditionally, researchers have used ROC curves where one of the axes is used to describe the complement of an error rate.  Specifically, one often sees a "true positive rate" versus a "false positive rate", where the true positive rate is the complement of the false negative rate.  There is no real objective way to judge whether one analysis is any better than the other, usually the choice is largely dependent on traditions in the area of the research you're in.
 
 There are many different names of the error rates in different scientific disciplines.  Because I come from the area of automatic speaker recognition, the current terminology is
- - *Probability of False Alarm*: false alarm rate, false positive rate, 1 - true negative rate
- - *Probability of Miss: miss rate*, false negative rate, 1 - hit rate, 1 - true positive rate
+ - *Probability of False Alarm*: a.k.a. false alarm rate, false positive rate, false accept rate, false match rate, Type II error, 1 - true negative rate, 1- specificity
+ - *Probability of Miss: miss rate*, a.k.a. miss rate, false negative rate, false reject rate, false non-match rate, Type I error, 1 - true positive rate, 1 - sensitivity, 1 - recall, 1 - verification rate, 1 - hit rate, 1 - genuine acceptance rate
 
+We foresee that the naming of things becomes a bit more flexible in future releases of this package. 
+
+DET plot
+-------
+
+A _detection error trade-off_ plot (Martin, 1997) is exactly the same as a ROC plot in the error domain (i.e., miss rate vs false alarm rate), but the axes have been warped according to `Φ⁻¹(x)`, the inverse of the cumulative normal distribution.  In R, this function is known as `qnorm(x)`, in Julia base this is ` √2 * erfinv(2x-1)`.  This type of plot has interesting properties
+- If the distributions of target and non-target scores are both Normal, then the DET-curve is a straight line.  In practice, many detection problems give rise to more-or-less straight DET curves, and this suggests that there exists a strictly increasing warping function that can make the score distributions (more) Normal. 
+- Towards better performance (lower error rates), the resolution of the graph is higher.  This makes it more easy to have multiple systems / performance characteristics over a smaller or wider range of performance in the same graph, and still be able to tell these apart.
+- Conventionally, the ranges of the axes are chosen 0.1%--50%.  This makes it possible to immediately assess the overall performance based on the absolute position of the line in the graph if you have seen more DET plots in your life.
+- The slope of the (straight) line corresponds to the ratio of the `σ` parameters of the underlying Normal score distributions, namely that of the non-target scores divided by that of the target scores.  Often, highly discriminative classifiers show very _flat_ curves, indicating that that target scores have a much larger variance than the non-target scores.  
+- The origin of this type of plot lies in psychophysics, who referred to graph paper with lines according to this warping as _double probability paper_.  The diagonal `y=x` in a DET plot corresponds linearly to a quantity known as `d'` (d-prime) from psychophysics, ranging from 0 at 50% error to about 6 at 0.1% error. 
+
+#3 Discrete and continuous scores
+
+There is an essential difference between discrete score (classes) and continuous scores.  For the former, trials with the same scores must be grouped before the probabilities of false alarm and miss are computed.  This results in ROC and DET plots that can have line elements that are not solely horizontal or vertical.  This is contrary to the latter case if we assume that no two scores are (coincidentally)  the same, which leads to only horizontal and vertical line segments.  This `ROC` package makes sure that the occurrence of identical scores is treated correctly by sorting target scores before identical non-target scores. 
+
+#3 Plot optmization
+
+For larget trial sets, it is very likely that in the extrems of the score distributions there is very little overlap.  This wil results in many consecutive horizontal or vertical line segments in the plot.   This `ROC` package integrates these consecutive line segments and replaces them by a single segment, which leads to a strong reduction in complexity in further calculations and plotting.  
+
+#2 Single-numbered metrics
+
+The ROC and DET plots shows the discrimination capability of the detector as a graph.  Often one wants to summarize the plot in a single metric.  There are many ways to do this, we list some here
+- *Equal Error Rate*.  This is the point in the DET or ROC where the curve crosses the `y=x` line, i.e., where the error rates are the same.  A lower EER means a better discriminating classifier.  For small number of trials it makes a different how to comput the EER, often in literature this is not specified.  In this package there are the functions:
+-- `eer()`: take the point where the absolute difference between miss and false alarm rate is minimum, and targ the average of these error rates.  This metric is insensitive to calibration, i.e., any strictly increasing function can be applied to the scores and an identical EER will be computed  
+-- `eerch()`: compute the convex hull of the ROC, and compute the point where this crosses the `y=x`line.  This has the interpretation of _the maximum over priors of the minimum cost_, and is useful for cost function analysis.  It tends to be more stable than `eer()`.
+- `auc()`: integrate the _Area Under the Curve_ of the ROC.  This metric is sensitive to the entire range of operating points, but, like the EER, it is insensitive to calibration.  It can be interpreted as the probability that a random non-target score is higher than a random target score, and lower score indicate better discrimination.  Please note that the complement (area under the hit-rate-vs-false-alarm-rate curve) is known under the same name in other disciplines.  We believe in errors, and minimizing them.  
+- 
 Notes
 -----
 This is very much work in progress.  If you stumble upon this, please drop me a line. 

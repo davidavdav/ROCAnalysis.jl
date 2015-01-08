@@ -1,27 +1,31 @@
 ## pav(y) returns the isotonic regression of the predictor y.
-## it is slow, and possibly wrong.   
+
 function pav{T<:Real}(y::Vector{T})
-    yy = convert(Vector{Float64}, y)
+    yy = similar(y, Float64)
     n = length(y)
-    i::Int=1
-    while i<n
-        while yy[i+1] >= yy[i] 
-            if i<n-1
-                i += 1
-            else
-                return yy
-            end
-#            println("i ", i)
+    i = similar(y, Int)         # index
+    l = similar(y, Int)         # length
+    ci = 1
+    i[ci] = l[ci] = 1
+    yy[ci] = y[1]
+    for j=2:n
+        ci += 1
+        i[ci] = j
+        l[ci] = 1
+        yy[ci] = y[j]
+        while ci ≥ 2 && yy[max(ci-1,1)] ≥ yy[ci]
+            nl = l[ci-1] + l[ci]
+            yy[ci-1] += l[ci] * (yy[ci] - yy[ci-1]) / nl
+            ci -= 1
+            l[ci] = nl
         end
-        ie = i+1
-#	println("range ", i, " ", ie)
-        yy[i:ie] = mean(y[i:ie])
-#       println("yy+ ", yy')
-        while i>1 && yy[i-1] > yy[i]
-            i -= 1
-            yy[i:ie] = mean(y[i:ie])
+    end
+    while n > 0
+        for j=i[ci]:n
+            yy[j] = yy[ci]
         end
-#        println("yy- ", yy')
+        n = i[ci] - 1
+        ci -= 1
     end
     yy
 end
