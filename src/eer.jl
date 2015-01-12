@@ -3,6 +3,7 @@
 
 ## eerch: computes the eer using the convex hull method
 eerch(r::Roc) = eerch(r.pfa, r.pmiss, r.ch)
+eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 
 ## compute the EER given corresponding pfa and pmiss array, but use the
 ## cunvex hull points only.
@@ -20,8 +21,11 @@ function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector
     return ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
 end
 
+## compute crossing with y=x points (ax,ay) and (bx,by)
+crossing(ax, ay, bx, by) =  ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
+
 ## just a simple EER approximation, optimized for memory and speed
-function eer{T}(tar::Vector{T}, non::Vector{T})
+function eer{T<:Real}(tar::Vector{T}, non::Vector{T})
     ntar = length(tar)
     nnon = length(non)
     scores = vcat(tar,non)      # targets before non-targets
@@ -35,27 +39,27 @@ function eer{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
 end
 
 ## This computes the actual approximate eer from sortorder and number of targets and nontargets
-## The argument "so" may be a subset of an original sort order, "thres" should be the
-## original number of targets
-function eer{T<:Integer}(so::Vector{T}, thres::T, ntar=sum(so .<= thres))
+## The sort order "so" may be a subset of an original sort order, "thres" should be the
+## original number of targets.
+function eer{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
     nnon = length(so) - ntar
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
-    pfa = minerr = mindiff = 1.
-    pmiss = absΔ = 0.
+    pfa = 1.
+    pmiss = 0.
+    lpfa, lpmiss = pfa, pmiss
     for s in so
         if s <= thres            # target score
             pmiss += Δmiss
         else
             pfa -= Δfa
-        end        
-        absΔ = abs(pfa - pmiss)
-        if absΔ < mindiff
-            mindiff = absΔ
-            minerr = (pfa + pmiss) / 2
         end
+        if pfa < pmiss
+            break
+        end
+        lpfa, lpmiss = pfa, pmiss
     end
-    return minerr
+    return crossing(pfa, pmiss, lpfa, lpmiss)
 end
 
 ## Returns the index to the largest value in the sorted array `a` ≤ `x` if !lower
@@ -64,7 +68,7 @@ function binsearch{T}(x::T, a::Vector{T}, lower=false)
     issorted(a) || error("Array needs to be sorted")
     mi = 1
     ma = length(a)
-    if x < a[mi] || lower && x == a[mi]
+    if x < a[mi] || lower && x == a[mi] 
         return 0
     elseif x > a[ma] || !lower && x == a[ma]
         return ma
@@ -81,18 +85,17 @@ function binsearch{T}(x::T, a::Vector{T}, lower=false)
 end
 
 ## if tar and non are sorted, we may be doing even faster...
-function eer_sorted{T}(tar::Vector{T}, non::Vector{T})
+function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
     ntar = length(tar)
     nnon = length(non)
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
-    absΔ = mindiff = minerr = 1.
     pmiss = 0.
-    ni = binsearch(tar[1], non, true)
+    ni = binsearch(tar[1], non, true) # index in non-targets of lowest target score
     pfa = 1. - ni * Δfa
     ti = 1
-    ## non[ni] < tar[ti] ≤ non[ni+1]
     ni += 1
+    lpfa, lpmiss = pfa, pmiss
     while ni ≤ nnon && ti ≤ ntar
         if tar[ti] < non[ni]
             pmiss += Δmiss
@@ -106,15 +109,15 @@ function eer_sorted{T}(tar::Vector{T}, non::Vector{T})
             pfa -= Δfa
             ni += 1
         end
-        absΔ = abs(pfa - pmiss)
-        if absΔ < mindiff
-            mindiff = absΔ
-            minerr = (pfa + pmiss) / 2
+        if pfa < pmiss
+            break
         end
+        lpfa, lpmiss = pfa, pmiss
     end
-    minerr
+    return crossing(pfa, pmiss, lpfa, lpmiss)
 end
 
+## experimental routine for timeing and optimization...
 function eerstats{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast=true)
     ntar = length(tar)
     nnon = length(non)
