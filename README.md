@@ -32,6 +32,8 @@ eerch(r)
 plot(r)
 ## this should give a more/less straight line
 detplot(r)
+## compute the Area Under the ROC, should be close to 0.078
+auc(r)
 ## Make an `LLR' plot: score-to-optimal-LLR mapping, r.θ, vs. r.llr
 llrplot(r)
 ```
@@ -87,17 +89,20 @@ A _detection error trade-off_ plot (Martin, 1997) is exactly the same as a ROC p
 
 There is an essential difference between discrete score (classes) and continuous scores.  For the former, trials with the same scores must be grouped before the probabilities of false alarm and miss are computed.  This results in ROC and DET plots that can have line elements that are not solely horizontal or vertical.  This is contrary to the latter case if we assume that no two scores are (coincidentally)  the same, which leads to only horizontal and vertical line segments.  This `ROC` package makes sure that the occurrence of identical scores is treated correctly by sorting target scores before identical non-target scores. 
 
-#3 Plot optmization
+#3 Plot optimisation
 
 For larget trial sets, it is very likely that in the extrems of the score distributions there is very little overlap.  This wil results in many consecutive horizontal or vertical line segments in the plot.   This `ROC` package integrates these consecutive line segments and replaces them by a single segment, which leads to a strong reduction in complexity in further calculations and plotting.  
 
 #2 Single-numbered metrics
 
 The ROC and DET plots shows the discrimination capability of the detector as a graph.  Often one wants to summarize the plot in a single metric.  There are many ways to do this, we list some here
-- *Equal Error Rate*.  This is the point in the DET or ROC where the curve crosses the `y=x` line, i.e., where the error rates are the same.  A lower EER means a better discriminating classifier.  For small number of trials it makes a different how to comput the EER, often in literature this is not specified.  In this package there are the functions:
--- `eer()`: take the point where the absolute difference between miss and false alarm rate is minimum, and targ the average of these error rates.  This metric is insensitive to calibration, i.e., any strictly increasing function can be applied to the scores and an identical EER will be computed  
+- *Equal Error Rate*.  This is the point in the DET or ROC where the curve crosses the `y=x` line, i.e., where the error rates are the same.  A lower EER means a better discriminating classifier.  It samples the ROC on only a single operating point, and moreover, this is an "after-the-fact" point.  This metric is insensitive to calibration, i.e., any strictly increasing function can be applied to the scores and an identical EER will be computed.  For small number of trials it makes a different how to comput the EER, often in literature this is not specified.  In this package there are the functions:
+-- `eer()`: take the point where the absolute difference between miss and false alarm rate is minimum, and targ the average of these error rates.   
 -- `eerch()`: compute the convex hull of the ROC, and compute the point where this crosses the `y=x`line.  This has the interpretation of _the maximum over priors of the minimum cost_, and is useful for cost function analysis.  It tends to be more stable than `eer()`.
-- `auc()`: integrate the _Area Under the Curve_ of the ROC.  This metric is sensitive to the entire range of operating points, but, like the EER, it is insensitive to calibration.  It can be interpreted as the probability that a random non-target score is higher than a random target score, and lower score indicate better discrimination.  Please note that the complement (area under the hit-rate-vs-false-alarm-rate curve) is known under the same name in other disciplines.  We believe in errors, and minimizing them.  
+- *Area Under the Curve*. `auc()` integrates the _Area Under the Curve_ of the ROC.  Contrary to the EER, this metric is sensitive to the entire range of operating points, but, like the EER, it is insensitive to calibration.  It can be interpreted as the probability that a random non-target score is higher than a random target score, and lower score indicate better discrimination.  Please note that the complement (area under the hit-rate-vs-false-alarm-rate curve) is known under the same name in other disciplines.  We believe in errors, and minimizing them.
+- *Cost of the Log-Likelihood-Ratio*. `cllr()` computes a normalized form of the cross-entropy between the "true posterior" (`1` for target trials and `0` for non-target trials) and the posterior resulting from the classifier score when interpreted as a likelihood ratio, and using a prior for the classes of 0.5.  This measure is _calibration sensitive_, i.e., it penalizes under- or over-confident likelihood ratios.  The minimum value is determined by the discriminative properties of the classifier, and this minimum approaches 0 for a classifier that completely separates the two classes.  A value of 1 indicates that the classifier gives no information, i.e., decisions can just as well be made based on the prior only.  A value larger than 1 indicates that making Bayes's decisions based on the classifiers score gives a higher expected cost than basing decisions on the prior alone.
+- *Minimum Cllr", `mincllr()` computes the minimum attainable Cllr by warping the scores to log-likelihood-ratios while maintaining the order of the scores.  This is equivalent to determining a minimum cost for all cost functions that can be written as a linear combination of actual miss- and false-alarm-rates, and integrating these costs over cost function parameters.
+
 - 
 Notes
 -----

@@ -1,6 +1,7 @@
 ## re-load this file during development
 using CHull
 using Winston
+using NumericExtensions
 
 require("roctypes.jl")
 
