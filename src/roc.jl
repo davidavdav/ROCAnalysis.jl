@@ -87,10 +87,10 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool
     end
 end
 
-## returns true if test point is "left" of line (x1,y1) -- (x2,y2)
+## returns positive number if test point is "left" of line (x1,y1) -- (x2,y2)
 ## positive: left, negative: right, zero: on
 ## This works best with rationals, but that makes it slow 
-function isleft{T}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
+function isleft{T<:Real}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
     (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1) 
 end
 
@@ -98,7 +98,7 @@ end
 ## (ignoring the C-code:-)
 ## points are (pmiss, pfa), pmiss (x) is increasing, pfa (y) is decreasing
 ## we implictly add a point at (2,2) that is on the convex hull
-function rochull{T}(pfa::Vector{T}, pmiss::Vector{T})
+function rochull{T<:Real}(pfa::Vector{T}, pmiss::Vector{T})
     two = 2one(T)
     n = length(pmiss)
     ## minmin and minmax
