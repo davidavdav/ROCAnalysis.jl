@@ -29,3 +29,28 @@ function pav{T<:Real}(y::Vector{T})
     end
     yy
 end
+
+## return the optimal log-likelihood ratios for target and non-target scores
+function optllr{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace=true)
+    ntar = length(tar)
+    nnon = length(non)
+    ntar > 0 && nnon > 0 || error("Lenghts must be nonzero")
+    o = sortperm([tar, non])
+    pideal = zeros(ntar + nnon + 4laplace)
+    ## set pideal=1 for target scores
+    for i=1:ntar+nnon
+        if o[i] ≤ ntar         # tar sorted before non, a target score
+            pideal[i+2laplace] = 1.0
+        end
+    end
+    if laplace
+        pideal[1] = pideal[end-1] = 1.0
+    end
+    ## optimal posterior, given monotonicity constraints
+    popt = pav(pideal)          # optimal posterior
+    postlo = logit(popt)[1+2laplace:end-2laplace] # posterior log odds
+    priorlo = log(length(tar) / length(non))
+    llrs = Array(T, ntar+nnon)
+    llrs[o] = postlo - priorlo
+    llrs[1:ntar], llrs[ntar+1:end]
+end
