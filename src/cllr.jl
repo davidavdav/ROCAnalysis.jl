@@ -9,5 +9,8 @@ function cllr{T<:Real}(tar::Vector{T}, non::Vector{T})
     for x in non
         cn += softplus(x)
     end
-    (ct / length(tar) + cn / length(non)) / (2log(2))
+    (ct / length(tar) + cn / length(non)) / 2log(2)
 end
+
+## minimum Cllr: Cllr after optimal score-to-llr transformation
+mincllr{T<:Real}(tar::Vector{T}, non::Vector{T}) = cllr(optllr(tar, non)...)
