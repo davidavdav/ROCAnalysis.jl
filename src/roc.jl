@@ -4,7 +4,7 @@
 ## These routines need a re-write, we can probably unroll a few loops
 ## and be more efficient with memory and sorting.
 
-function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=true) 
+function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false) 
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
