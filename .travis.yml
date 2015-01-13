@@ -2,4 +2,5 @@ language: julia
 julia:
  - release
  - nightly
- 
+script:
+  - xvfb-run julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROC"); Pkg.test("ROC")'
