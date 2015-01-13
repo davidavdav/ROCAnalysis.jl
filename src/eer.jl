@@ -33,30 +33,30 @@ crossing(ax, ay, bx, by) =  ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
 ## just a simple EER approximation, optimized for memory and speed
 eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
 
-## EER, given the sort order of `[tar, non]`
-## The idea is that you don't need to sort multiple times if you have
-## multiple selections.  This cannot be accurate for cases where
-## `tar` and `non` have the same value
-function eer_so{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
-    length(so) == length(selection) || error("selection not the same length as sort order")
-    eer(so[findin(so, find(selection))], ntar)
-end
-
-## This computes the actual approximate eer from sortorder and number of targets and nontargets
-## The sort order "so" may be a subset of an original sort order, "thres" should be the
-## original number of targets.
-function eer_so{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
-    nnon = length(so) - ntar
+## if tar and non are sorted, we may be doing even faster...
+function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
+    ntar = length(tar)
+    nnon = length(non)
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
-    pfa = 1.
     pmiss = 0.
+    ni = binsearch(tar[1], non, true) # index in non-targets of lowest target score
+    pfa = 1. - ni * Δfa
+    ti = 1
+    ni += 1
     lpfa, lpmiss = pfa, pmiss
-    for s in so
-        if s <= thres            # target score
+    while ni ≤ nnon && ti ≤ ntar
+        if tar[ti] < non[ni]
             pmiss += Δmiss
-        else
+            ti += 1
+        elseif tar[ti] > non[ni]
             pfa -= Δfa
+            ni += 1
+        else
+            pmiss += Δmiss
+            ti += 1
+            pfa -= Δfa
+            ni += 1
         end
         if pfa < pmiss
             break
@@ -88,30 +88,30 @@ function binsearch{T}(x::T, a::Vector{T}, lower=false)
     return mi
 end
 
-## if tar and non are sorted, we may be doing even faster...
-function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
-    ntar = length(tar)
-    nnon = length(non)
+## EER, given the sort order of `[tar, non]`
+## The idea is that you don't need to sort multiple times if you have
+## multiple selections.  This cannot be accurate for cases where
+## `tar` and `non` have the same value
+function eer_so{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
+    length(so) == length(selection) || error("selection not the same length as sort order")
+    eer(so[findin(so, find(selection))], ntar)
+end
+
+## This computes the actual approximate eer from sortorder and number of targets and nontargets
+## The sort order "so" may be a subset of an original sort order, "thres" should be the
+## original number of targets.
+function eer_so{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
+    nnon = length(so) - ntar
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
+    pfa = 1.
     pmiss = 0.
-    ni = binsearch(tar[1], non, true) # index in non-targets of lowest target score
-    pfa = 1. - ni * Δfa
-    ti = 1
-    ni += 1
     lpfa, lpmiss = pfa, pmiss
-    while ni ≤ nnon && ti ≤ ntar
-        if tar[ti] < non[ni]
+    for s in so
+        if s <= thres            # target score
             pmiss += Δmiss
-            ti += 1
-        elseif tar[ti] > non[ni]
-            pfa -= Δfa
-            ni += 1
         else
-            pmiss += Δmiss
-            ti += 1
             pfa -= Δfa
-            ni += 1
         end
         if pfa < pmiss
             break
