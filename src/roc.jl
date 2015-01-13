@@ -1,3 +1,9 @@
+## roc.jl (c) 2014, 2015 David A. van Leeuwen
+## Routines to compute Receiver Operating Characteristics
+
+## These routines need a re-write, we can probably unroll a few loops
+## and be more efficient with memory and sorting.
+
 function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=true) 
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
@@ -19,7 +25,7 @@ end
 function sortscores{T<:Real}(tar::Vector{T}, non::Vector{T})
     x = vcat(tar, non)                     # order targets before non-targets
     so = sortperm(x)                       # sort order
-    xo = x[so]                             # scores oredered
+    xo = x[so]                             # scores ordered
     tc = vcat(ones(Int, length(tar)), zeros(Int, length(non)))[so] # target count
     return xo, tc
 end    
@@ -56,7 +62,7 @@ end
     
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
-function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true, fast::Bool=true)
+function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true)
     if laplace
         tc = [1, 0, tc, 1, 0]
         nc = [0, 1, nc, 0, 1]
@@ -64,17 +70,17 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool
     end
     ntar = sum(tc)
     nnon = sum(nc)
-    if fast
+#    if fast
         pfa = [1, 1 - cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
         pmiss = [0, cumsum(tc)/ntar]
         index = rochull(pfa, pmiss)
-    else
-        pfa = [1, 1 - cumsum(nc)/nnon]
-        pmiss = [0, cumsum(tc)/ntar]
+#    else
+#        pfa = [1, 1 - cumsum(nc)/nnon]
+#        pmiss = [0, cumsum(tc)/ntar]
         ## convex hull
-        hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
-        index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
-    end
+#        hull = chull(vcat(hcat(pfa, pmiss), [2 2])) # convex hull points
+#        index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
+#    end
     ch = falses(length(pfa))
     ch[index] = true
     ## LLR
