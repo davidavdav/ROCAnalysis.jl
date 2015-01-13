@@ -1,9 +1,21 @@
 ## using Winston
 
-function Winston.plot(r::Roc)
-    plot(r.pfa, r.pmiss, "-")
-    xlabel("Pfa")
-    ylabel("Pmiss")
+function Winston.plot(r::Roc, nr=1; ch=false)
+    col = string("krgmcb"[(nr-1) % 6 + 1])
+    lty = ["-", "--", ";"][div(nr-1,6) + 1]
+    if ch
+        chi = find(r.ch)
+        x, y = r.pfa[chi], r.pmiss[chi]
+    else
+        x, y = r.pfa, r.pmiss
+    end
+    if nr==1
+        plot(x, y, lty*col)
+        xlabel("Pfa")
+        ylabel("Pmiss")
+    else
+        oplot(x, y, lty * col)
+    end
 end
 
 ## R terminology, quantile function qnorm() and cumulative distribution pnorm()
