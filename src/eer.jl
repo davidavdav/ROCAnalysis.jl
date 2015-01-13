@@ -10,30 +10,34 @@ eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
-    i = find(diff(sign(pfa[ch] - pmiss[ch])) .!= 0)[1]
-    if i==length(ch)
-        warning("EER at the extreme")
-        return (pfa[i] + pmiss[i])/2
+    chi = find(ch)
+    i = chi[1]
+    direction = sign(pfa[i] - pmiss[i]) # >0 if first pfa > pmiss 
+    ## does it pay off to do a binary search?  It should, really.
+    li = i
+    for i in chi
+        if sign(pfa[i] - pmiss[i]) != direction
+            break
+        end
+        li = i
     end
     ## compute the crossing
-    (ax,bx) = pfa[ch][i:i+1]
-    (ay,by) = pmiss[ch][i:i+1]
-    return ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
+    (ax,bx) = pfa[[li,i]]
+    (ay,by) = pmiss[[li,i]]
+    return crossing(ax, ay, bx, by)
 end
 
 ## compute crossing with y=x points (ax,ay) and (bx,by)
 crossing(ax, ay, bx, by) =  ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
 
 ## just a simple EER approximation, optimized for memory and speed
-function eer{T<:Real}(tar::Vector{T}, non::Vector{T})
-    ntar = length(tar)
-    nnon = length(non)
-    scores = vcat(tar,non)      # targets before non-targets
-    so = sortperm(scores)
-    eer(so, ntar, ntar)
-end
+eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
 
-function eer{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
+## EER, given the sort order of `[tar, non]`
+## The idea is that you don't need to sort multiple times if you have
+## multiple selections.  This cannot be accurate for cases where
+## `tar` and `non` have the same value
+function eer_so{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
     length(so) == length(selection) || error("selection not the same length as sort order")
     eer(so[findin(so, find(selection))], ntar)
 end
@@ -41,7 +45,7 @@ end
 ## This computes the actual approximate eer from sortorder and number of targets and nontargets
 ## The sort order "so" may be a subset of an original sort order, "thres" should be the
 ## original number of targets.
-function eer{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
+function eer_so{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
     nnon = length(so) - ntar
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
@@ -117,8 +121,8 @@ function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
     return crossing(pfa, pmiss, lpfa, lpmiss)
 end
 
-## experimental routine for timeing and optimization...
-function eerstats{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast=true)
+## experimental routine for timing and optimization...
+function eer_experimental{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast=true)
     ntar = length(tar)
     nnon = length(non)
     @time scores = vcat(non,tar)      # 1
