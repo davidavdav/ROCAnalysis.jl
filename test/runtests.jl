@@ -1,4 +1,4 @@
 using ROC
 
-include("extremes")
-include("big")
+include("extremes.jl")
+include("big.jl")
