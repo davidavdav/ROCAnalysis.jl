@@ -28,7 +28,14 @@ function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector
 end
 
 ## compute crossing with y=x points (ax,ay) and (bx,by)
-crossing(ax, ay, bx, by) =  ax + (ax-ay)*(bx-ax) / (ax-ay-bx+by)
+function crossing(ax, ay, bx, by)
+    den = ax-ay-bx+by
+    if den == 0
+        return (ax + bx + ay + by) / 4
+    else
+        return ax + (ax-ay)*(bx-ax) / den
+    end
+end
 
 ## just a simple EER approximation, optimized for memory and speed
 eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
@@ -37,6 +44,7 @@ eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
 function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
     ntar = length(tar)
     nnon = length(non)
+    ntar > 0 && nnon > 0 || error("target and non-target arrays must not be empty")
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
     pmiss = 0.
