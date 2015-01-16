@@ -1,4 +1,7 @@
-## roc.jl (c) 2014, 2015 David A. van Leeuwen
+## roc.jl  Receiver Operating Characteristics computations
+## (c) 2013--2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
 ## Routines to compute Receiver Operating Characteristics
 
 ## These routines need a re-write, we can probably unroll a few loops
@@ -53,13 +56,12 @@ function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
     return θ, tc, nc, keep
 end
-## This finds the chnge points on the ROC (the corner points)
+## This finds the change points on the ROC (the corner points)
 function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
     (const_pfa, const_pmiss) = map(a -> diff(a) .== 0, (pfa, pmiss)) # no changes
     return [true, ! (const_pfa[1:end-1]  &  const_pfa[2:end] | 
                      const_pmiss[1:end-1] & const_pmiss[2:end]), true]
 end
-    
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
 function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true)

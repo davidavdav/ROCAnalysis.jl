@@ -1,4 +1,7 @@
-## using Winston
+## plot.jl  Plotting routines for ROC and DET
+## (c) 2014--2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
 
 function Winston.plot(r::Roc, nr=1; ch=false)
     col = string("krgmcb"[(nr-1) % 6 + 1])

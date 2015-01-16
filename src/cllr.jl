@@ -1,4 +1,7 @@
-## (c) 2014 David A. van Leeuwen
+## cllr.jl  Cost of the Log Likelihood Ratio
+## (c) 2014--2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
 
 ## Cllr for target and non-target scores
 function cllr{T<:Real}(tar::Vector{T}, non::Vector{T})

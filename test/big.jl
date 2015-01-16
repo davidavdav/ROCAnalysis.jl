@@ -1,3 +1,8 @@
+## big.jl  A test with a larger set of data
+## (c) 2014--2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
+
 using Base.Test
 
 ## test some statistics on large data sets

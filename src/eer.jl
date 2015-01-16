@@ -1,4 +1,6 @@
-## eer.jl (c) 2014 David A. van Leeuwen
+## eer.jl  Equal Error Rate and friends
+## (c) 2014--2015 David A. van Leeuwen
+##
 ## This code is licenced under the MIT software license
 
 ## eerch: computes the eer using the convex hull method

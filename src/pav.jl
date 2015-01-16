@@ -1,5 +1,10 @@
-## pav(y) returns the isotonic regression of the predictor y.
+## pav.jl  Pool Adjacent Violators algorithm for isotonic regression
+## (c) 2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
+## This code is largely based on code from the Bosaris toolkit
 
+## pav(y) returns the isotonic regression of the predictor y.
 function pav{T<:Real}(y::Vector{T})
     yy = similar(y, Float64)
     n = length(y)

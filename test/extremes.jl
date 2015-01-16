@@ -1,4 +1,7 @@
-## extremes.jl (c) David A. van Leeuwen
+## extremes.jl  Test some extreme cases
+## (c) 2014--2015 David A. van Leeuwen
+##
+## Licensed under the MIT software license, see LICENSE.md
 
 ## check some pathological cases where sorting and comparison of equal values plays a role
 

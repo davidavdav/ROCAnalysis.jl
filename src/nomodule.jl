@@ -2,6 +2,7 @@
 ## using CHull
 using Winston
 using NumericExtensions
+using DataFrames
 
 require("roctypes.jl")
 
@@ -11,3 +12,4 @@ include("cllr.jl")
 include("auc.jl")
 include("pav.jl")
 include("plot.jl")
+include("dataframes.jl")
