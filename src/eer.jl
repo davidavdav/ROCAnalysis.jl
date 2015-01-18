@@ -50,7 +50,7 @@ function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
     pmiss = 0.
-    ni = binsearch(tar[1], non, true) # index in non-targets of lowest target score
+    ni = binsearch(tar[1], non, lower=true) # index in non-targets of lowest target score
     pfa = 1. - ni * Δfa
     ti = 1
     ni += 1
@@ -76,10 +76,10 @@ function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
     return crossing(pfa, pmiss, lpfa, lpmiss)
 end
 
-## Returns the index to the largest value in the sorted array `a` ≤ `x` if !lower
+## Returns the index to the largest value in the sorted array `a` ≤ `x` if lower==false
 ## If lower==true, the value must be strictly < `x`
-function binsearch{T}(x::T, a::Vector{T}, lower=false)
-    issorted(a) || error("Array needs to be sorted")
+function binsearch{T<:Real}(x::Real, a::Vector{T}; lower=false, check=false)
+    check && (issorted(a) || error("Array needs to be sorted"))
     mi = 1
     ma = length(a)
     if x < a[mi] || lower && x == a[mi] 

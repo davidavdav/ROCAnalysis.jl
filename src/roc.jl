@@ -7,7 +7,7 @@
 ## These routines need a re-write, we can probably unroll a few loops
 ## and be more efficient with memory and sorting.
 
-function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false) 
+function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true) 
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
@@ -16,10 +16,12 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false)
     pmiss = [0, cumsum(tc)/length(tar)]
     ## convex hull and llr
     ch, llr = chllr(tc, nc, xo, laplace=laplace)
-    ## remove points on the ROC in the middle of a horizontal or vertical segment
-    changes = changepoints(pfa, pmiss)
-    (pfa, pmiss, ch) = map(a -> a[changes], (pfa, pmiss, ch))
-    (llr, θ) = map(a -> a[changes[1:end-1]], (llr, θ))
+    if collapse
+        ## remove points on the ROC in the middle of a horizontal or vertical segment
+        changes = changepoints(pfa, pmiss)
+        (pfa, pmiss, ch) = map(a -> a[changes], (pfa, pmiss, ch))
+        (llr, θ) = map(a -> a[changes[1:end-1]], (llr, θ))
+    end
     Roc(pfa, pmiss, ch, θ, llr)
 end
 
@@ -42,11 +44,6 @@ function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     @inbounds for i=1:length(changes)-1
         start = changes[i]
         stop = changes[i+1]-1
-#        for j=start+1:stop
-#            tc[start] += tc[j]
-#            nc[start] += nc[j]
-#            keep[j] = false
-#        end
         if stop>start
             tc[start] = sum(tc[start:stop])
             nc[start] = sum(nc[start:stop])
