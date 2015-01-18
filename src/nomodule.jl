@@ -1,15 +1,12 @@
-## re-load this file during development
-## using CHull
-using Winston
-using NumericExtensions
-using DataFrames
+## nomodul.jl  Separate Module encapsulation from code
+## (c) 2013--2015 David A. van Leeuwen
+## Licensed under the MIT software license, see LICENSE.md
 
+## re-load this file during development of the package. 
+
+include("modules.jl")
+
+## skip reading types that have been read before
 require("roctypes.jl")
 
-include("roc.jl")
-include("eer.jl")
-include("cllr.jl")
-include("auc.jl")
-include("pav.jl")
-include("plot.jl")
-include("dataframes.jl")
+include("includes.jl")
