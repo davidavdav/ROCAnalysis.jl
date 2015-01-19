@@ -4,6 +4,7 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 using ROC
+using DataFrames
 
 include("extremes.jl")
 include("big.jl")
