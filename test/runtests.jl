@@ -5,6 +5,7 @@
 
 using ROC
 using DataFrames
+using NumericExtensions
 
 include("extremes.jl")
 include("big.jl")
