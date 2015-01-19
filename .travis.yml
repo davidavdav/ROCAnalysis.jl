@@ -2,5 +2,7 @@ language: julia
 julia:
  - release
  - nightly
+before_install:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
   - xvfb-run julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROC"); Pkg.test("ROC")'
