@@ -14,7 +14,7 @@ peff(dcf::DCF) = peff(dcf.ptar, cfa=dcf.cfa, cmiss=dcf.cmiss)
 plo(ptar=0.5; cfa=1, cmiss=1) = logit(ptar) + log(cmiss ./ cfa)
 plo(dcf::DCF) = plo(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 
-## Cost of detection: cdet = p_tar * C_miss * p_miss + (1-p_tar) * C_fa * p_fa
+## Decision Cost Function: dcf = p_tar * C_miss * p_miss + (1-p_tar) * C_fa * p_fa
 ## Compute this through the Bayes error rate, ber
 
 ## Basic definition of what Niko calls Bayes Error Rate for a single prior log-odds
@@ -34,6 +34,7 @@ end
 ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}) = [ber(tar, non, x) for x in plo]
 
 ## Use an _unclollapsed_ ROC for determining the Bayes error rate.
+## r = roc(tar, non, collapse=false)
 
 ## We can't accurately compute this from a collapsed ROC, because
 ## the actual threshold might be somewhere among the set of collapsed scores. 
@@ -68,19 +69,21 @@ normfactor(plo) = 1 + exp(abs(plo))
 costfactor(d::DCF) = d.ptar .* d.cmiss + (1-d.ptar) .* d.cfa
 
 ## to norm or not to norm
-function applyfactor(dcf, er, norm::Bool)
-    lo = plo(dcf)
+function applyfactor(d::DCF, er, norm::Bool)
+    lo = plo(d)
     if norm
         return normfactor(lo) .* er
     else
-        return costfactor(dcf) .* er
+        return costfactor(d) .* er
     end
 end
 
-cdet(tar::Vector, non::Vector, dcf::DCF; norm=false) = applyfactor(dcf, ber(tar, non, plo(dcf)), norm)
-cdet(tnt::TNT, dcf::DCF; norm=false) = cdet(tnt.tar, tnt.non, plo(dcf), norm=norm)
-cdet(r::Roc, dcf::DCF; norm=false) = applyfactor(dcf, ber(r, plo(dcf)), norm)
+## Decision cost functions
 
-mincdet(r::Roc, dcf::DCF; norm=false) = applyfactor(dcf, minber(r, plo(dcf)), norm)
-mincdet(tar::Vector, non, Vector, dcf::DCF; norm=false) = applyfactor(dcf, minber(roc(tar, non), plo(dcf)), norm)
-mincdet(tnt::TNT, dcf::DCF; norm=false) = mincdet(tnt.tar, tnt.non, plo(dcf), norm=norm)
+dcf(tar::Vector, non::Vector, d::DCF; norm=false) = applyfactor(d, ber(tar, non, plo(d)), norm)
+dcf(tnt::TNT, d::DCF; norm=false) = dcf(tnt.tar, tnt.non, d, norm=norm)
+dcf(r::Roc, d::DCF; norm=false) = applyfactor(d, ber(r, plo(d)), norm)
+
+mindcf(r::Roc, d::DCF; norm=false) = applyfactor(d, minber(r, plo(d)), norm)
+mindcf(tar::Vector, non::Vector, d::DCF; norm=false) = applyfactor(d, minber(roc(tar, non), plo(d)), norm)
+mindcf(tnt::TNT, d::DCF; norm=false) = mindcf(tnt.tar, tnt.non, d, norm=norm)
