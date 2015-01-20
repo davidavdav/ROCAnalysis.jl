@@ -70,3 +70,36 @@ function llrplot(r::Roc)
     xlabel("score")
     ylabel("LLR")
 end
+
+function apeplot(r::Roc; xmin=-7, xmax=7)
+    lo = [xmin:0.01:xmax]
+    be = ber(r, lo)
+    mbe = minber(r, lo)
+    defbe = 1 ./ normfactor(lo)
+    plot(lo, be, "-r")
+    oplot(lo, mbe, "-g")
+    oplot(lo, defbe, "--k")
+    ylim(0, 1.1*maximum(be))
+    title("Applied Probability of Error")
+    xlabel("prior log odds")
+    ylabel("Bayes error rate")
+end
+
+function nbeplot(r::Roc; xmin = -10, xmax = 5)
+    lo = [xmin:0.01:xmax]
+    norm = normfactor(lo)
+    bfa, bmiss = [be .* norm for be in ber_famiss(r, lo)]
+    nbe = bfa + bmiss
+    mbfa, mbmiss = [mbe .* norm for mbe in minber_famiss(r, lo)]
+    mnbe = minber(r, lo) .* norm
+    plot(lo, nbe, "-r")
+    oplot(lo, mnbe, "-g")
+    oplot(lo, bfa, "--r")
+    oplot(lo, bmiss, "-.r")
+    oplot(lo, mbfa, "--g")
+    oplot(lo, mbmiss, "-.g")
+    ylim(0, 1.1)
+    title("Normalized Bayes' Error")
+    xlabel("prior log odds")
+    ylabel("normalized Bayes error")
+end

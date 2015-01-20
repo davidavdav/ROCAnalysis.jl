@@ -27,8 +27,8 @@ function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::T2)
     for x in non
         nfa += x ≥ -plo
     end
-    p = sigmoid(plo)            # effective prior
-    return p * nmiss / length(tar) + (1-p) * nfa / length(non)
+    ## the effective prior is sigmoid(plo), use sigmoid(-plo) for p_non for numerical stability
+    return sigmoid(plo) * nmiss / length(tar) + sigmoid(-plo) * nfa / length(non)
 end
 ## For larger arrays plo, it is faster to use the Roc version beow
 ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}) = [ber(tar, non, x) for x in plo]
@@ -38,26 +38,31 @@ ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}) = [ber
 
 ## We can't accurately compute this from a collapsed ROC, because
 ## the actual threshold might be somewhere among the set of collapsed scores. 
-function ber(r::Roc, plo::Real)
-    i = binsearch(-plo, r.θ) + 1
-    p = sigmoid(plo)
-    return (1-p) * r.pfa[i] + p * r.pmiss[i]
+
+## bayes false alarm and miss rates, we need this for the NBE plot
+## first a helper function, scalar and array version
+function ber_famiss(r::Roc, field::Symbol, plo::Real)
+    i = binsearch(-plo, getfield(r, field)) + 1
+    return sigmoid(-plo) * r.pfa[i], sigmoid(plo) * r.pmiss[i]
 end
-ber{T<:Real}(r::Roc, plo::Vector{T}) = [ber(r, x) for x in plo]
+function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Array{T})
+    tuples = [ber_famiss(r, f, x) for x in plo]
+    return [ [ x[y] for x in tuples] for y in 1:2]
+end
+
+## actual errors
+ber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :θ, plo)
+
+ber(r::Roc, plo::Real) = +(ber_famiss(r, plo)...)
+ber{T<:Real}(r::Roc, plo::Array{T}) = [ber(r, x) for x in plo]
 
 ## minimum ber is best computed using a Roc structure
-function minber(r::Roc, plo::Real)
-    i = binsearch(-plo, r.llr) + 1
-    p = sigmoid(plo)
-    return (1-p) * r.pfa[i] + p * r.pmiss[i]
-end
-minber{T<:Real}(r::Roc, plo::Vector{T}) = [minber(r, x) for x in plo]
+minber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :llr, plo)
+minber(r::Roc, plo::Real) = +(minber_famiss(r, plo)...)
+minber{T<:Real}(r::Roc, plo::Array{T}) = [minber(r, x) for x in plo]
+
 ## compute ROC if scores are given
-function minber{T<:Real}(tar::Vector{T}, non::Vector{T}, plo::Real)
-    r = roc(tar, non)
-    return minber(r, plo)
-end
-function minber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2})
+function minber{T<:Real}(tar::Vector{T}, non::Vector{T}, plo::ArrayOrReal)
     r = roc(tar, non)
     return minber(r, plo)
 end
