@@ -138,3 +138,21 @@ function rochull{T<:Real}(pfa::Vector{T}, pmiss::Vector{T})
     stack
 end
 
+## some support for standard Julia functions
+Base.length(r::Roc) = length(r.pfa)
+Base.size(r::Roc) = (length(r),)
+function Base.size(r::Roc, d::Integer)
+    d==1 || error ("Roc is a 1-dimensional structure")
+    return length(r)
+end
+Base.start(r::Roc) = 1
+Base.done(r::Roc, state) = state>length(r)
+Base.endof(r::Roc) = length(r)
+Base.next(r::Roc, state) = (r[state], state+1)
+function Base.getindex(r::Roc, i::Integer)
+    if i == length(r)
+        return (r.pfa[i], r.pmiss[i], Inf, r.ch[i], Inf)
+    else
+        return (r.pfa[i], r.pmiss[i], r.θ[i], r.ch[i], r.llr[i])
+    end
+end
