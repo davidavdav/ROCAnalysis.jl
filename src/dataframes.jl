@@ -15,8 +15,8 @@ for f in (:eer, :eerch, :auc, :cllr, :mincllr)
     @eval ($f)(x::DataFrame; score=:score, target=:target) = ($f)(TNT(x, score=score, target=target))
 end
 
-roc(x::DataFrame; score=:score, target=:target, laplace=false, collapse=false) = roc(TNT(x, score=score, target=target), laplace=laplace, collapse=collapse)
-roc(tnt::TNT; laplace=false, collapse=false) = roc(tnt.tar, tnt.non, laplace=laplace, collapse=collapse)
+roc(x::DataFrame; score=:score, target=:target, laplace=false, collapse=true) = roc(TNT(x, score=score, target=target), laplace=laplace, collapse=collapse)
+roc(tnt::TNT; laplace=false, collapse=true) = roc(tnt.tar, tnt.non, laplace=laplace, collapse=collapse)
 
 for f in (:ber, :minber)
     @eval ($f)(tnt::TNT, plo) = ($f)(tnt.tar, tnt.non, plo)
