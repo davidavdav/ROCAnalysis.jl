@@ -37,9 +37,13 @@ auc(r)
 ## define a decision cost function by its parameter p_tar=0.01, Cfa=1, Cmiss=10 (NIST SRE 2008 setting)
 d = DCF(0.01, 1, 10)
 ## `actual costs' using a threshold of scores at -lpo(d)
+lpo(d)
 dcf(tar, non, d)
 ## `minimal costs' using an optimal threshold
-min_dcf(r, d)
+mindcf(r, d)
+## define an array of DCFs, and compute the decision costs for these, using a threshold at -lpo
+d = DCF([0.001, 0.01. 0.1, 0.5, 0.9, 0.99, 0.999], 1, 1)
+dcf(tar, non, d)
 ## Make an `LLR' plot: score-to-optimal-LLR mapping, r.θ, vs. r.llr
 llrplot(r)
 ```
