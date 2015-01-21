@@ -27,18 +27,34 @@ m = 0.03173675448189074
 @test_approx_eq minber(tar,non,lo) m
 @test_approx_eq minber(r,lo) m
 
+## set a global DCF as well
+setdcf(cmiss=10)                # evalita 2009
+
 for norm in (false, true)
     c = 0.035877871754524004 * 10^norm
-    @test_approx_eq dcf(x,d,norm=norm) c
-    @test_approx_eq dcf(tnt,d,norm=norm) c
-    @test_approx_eq dcf(tar,non,d,norm=norm) c
-    @test_approx_eq dcf(ruc,d,norm=norm) c
+    @test_approx_eq dcf(x,d=d,norm=norm) c
+    @test_approx_eq dcf(tnt,d=d,norm=norm) c
+    @test_approx_eq dcf(tar,non,d=d,norm=norm) c
+    @test_approx_eq dcf(ruc,d=d,norm=norm) c
 
     m = 0.034593062385260914 * 10^norm
-    @test_approx_eq mindcf(x,d,norm=norm) m
-    @test_approx_eq mindcf(tnt,d,norm=norm) m
-    @test_approx_eq mindcf(tar,non,d,norm=norm) m
-    @test_approx_eq mindcf(r,d,norm=norm) m
+    @test_approx_eq mindcf(x,d=d,norm=norm) m
+    @test_approx_eq mindcf(tnt,d=d,norm=norm) m
+    @test_approx_eq mindcf(tar,non,d=d,norm=norm) m
+    @test_approx_eq mindcf(r,d=d,norm=norm) m
+
+    ## global DCF
+    c = 0.23094942466561763084 * 2^norm
+    @test_approx_eq dcf(x,norm=norm) c
+    @test_approx_eq dcf(tnt,norm=norm) c
+    @test_approx_eq dcf(tar,non,norm=norm) c
+    @test_approx_eq dcf(ruc,norm=norm) c
+
+    m = 0.21843024685287174003 * 2^norm
+    @test_approx_eq mindcf(x,norm=norm) m
+    @test_approx_eq mindcf(tnt,norm=norm) m
+    @test_approx_eq mindcf(tar,non,norm=norm) m
+    @test_approx_eq mindcf(ruc,norm=norm) m
 end
 
 ## array
@@ -52,8 +68,8 @@ dc = DCF(sigmoid(lo), 1, 1)
 @test all(minber(r,lo) .≤ ber(ruc,lo))
 
 for norm in (false, true)
-    @test_approx_eq dcf(x,dc,norm=norm) dcf(ruc,dc,norm=norm)
-    @test dcf(x, dc, norm=norm) == dcf(tnt, dc, norm=norm) == dcf(tar, non, dc, norm=norm)
-    @test mindcf(x, dc, norm=norm) == mindcf(tnt, dc, norm=norm) == mindcf(tar, non, dc, norm=norm) == mindcf(r, dc, norm=norm)
-    @test all(mindcf(r, dc, norm=norm) .≤ dcf(ruc, dc, norm=norm))
+    @test_approx_eq dcf(x,d=dc,norm=norm) dcf(ruc,d=dc,norm=norm)
+    @test dcf(x, d=dc, norm=norm) == dcf(tnt, d=dc, norm=norm) == dcf(tar, non, d=dc, norm=norm)
+    @test mindcf(x, d=dc, norm=norm) == mindcf(tnt, d=dc, norm=norm) == mindcf(tar, non, d=dc, norm=norm) == mindcf(r, d=dc, norm=norm)
+    @test all(mindcf(r, d=dc, norm=norm) .≤ dcf(ruc, d=dc, norm=norm))
 end

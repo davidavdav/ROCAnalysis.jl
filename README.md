@@ -34,6 +34,12 @@ plot(r)
 detplot(r)
 ## compute the Area Under the ROC, should be close to 0.078
 auc(r)
+## define a decision cost function by its parameter p_tar=0.01, Cfa=1, Cmiss=10 (NIST SRE 2008 setting)
+d = DCF(0.01, 1, 10)
+## `actual costs' using a threshold of scores at -lpo(d)
+dcf(tar, non, d)
+## `minimal costs' using an optimal threshold
+min_dcf(r, d)
 ## Make an `LLR' plot: score-to-optimal-LLR mapping, r.θ, vs. r.llr
 llrplot(r)
 ```
@@ -60,7 +66,7 @@ For evaluating the classifier, we need a set of supervised trials, i.e., for eac
 - false positives: `s>θ` while in fact the true label is `A`
 - false negatives: `s<θ` while in fact the true label is `B`.
 
-The _Receiver Operating Characteristic_ (ROC) is a graph that shows how the fractions of the false positives and false negatives change with varying `θ`, for a fixed set of scores `s`.
+The _Receiver Operating Characteristic_ (ROC) is a graph that shows how the fractions of the false positives and false negatives change with varying `θ`, for a fixed set of scores `s`.  The structure of type `Roc` captures the essential information in a pre-processed way such that other quantities can be derived efficiently. 
 
 Because we come from automatic speaker recognition, we tend to use the following terminology for the classes
 - *target*, the higher scores, a.k.a. same source, true client, ...

@@ -19,19 +19,30 @@ plo(dcf::DCF) = plo(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 
 ## Basic definition of what Niko calls Bayes Error Rate for a single prior log-odds
 ## count errors _at_ the decision boundary both in fa and miss
-function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::T2)
+## For a Bayes Error Rate, scores scholf be log-likelihood ratios, and the Bayes decisions
+## are made at threshold -plo.
+## However, because this routines is also used for dcf(), we allow a separate setting of
+## the threshold.
+function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::T2, thres::T2=-plo)
     nmiss = nfa = 0
     for x in tar
-        nmiss += x ≤ -plo
+        nmiss += x ≤ thres
     end
     for x in non
-        nfa += x ≥ -plo
+        nfa += x ≥ thres
     end
     ## the effective prior is sigmoid(plo), use sigmoid(-plo) for p_non for numerical stability
     return sigmoid(plo) * nmiss / length(tar) + sigmoid(-plo) * nfa / length(non)
 end
-## For larger arrays plo, it is faster to use the Roc version beow
-ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}) = [ber(tar, non, x) for x in plo]
+## Both the prior log odds and the threshold may be an array.
+## If the plo's are an array, the thresholds---if given---must be an array of the same size,
+## because it doesn't really make sense to evaluate different cost functions with the same threshold. 
+## For larger arrays of thres or plo, it is faster to use the Roc version below
+ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Vector{T2}) = [ber(tar, non, plo, x) for x in thres]
+function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}, thres::Vector{T2}=-plo)
+    size(plo) == size(thres) || error("Inconsistent vector lengths")
+    [ber(tar, non, x...) for x in zip(plo,thres)]
+end
 
 ## Use an _unclollapsed_ ROC for determining the Bayes error rate.
 ## r = roc(tar, non, collapse=false)
@@ -39,22 +50,28 @@ ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}) = [ber
 ## We can't accurately compute this from a collapsed ROC, because
 ## the actual threshold might be somewhere among the set of collapsed scores. 
 
-## bayes false alarm and miss rates, we need this for the NBE plot
-## first a helper function, scalar and array version
-function ber_famiss(r::Roc, field::Symbol, plo::Real)
-    i = binsearch(-plo, getfield(r, field)) + 1
+## Bayes false alarm and miss rates, we need this for the NBE plot.
+## First define a helper function, scalar and array versions
+function ber_famiss(r::Roc, field::Symbol, plo::Real, thres::Real=-plo)
+    i = binsearch(thres, getfield(r, field)) + 1
     return sigmoid(-plo) * r.pfa[i], sigmoid(plo) * r.pmiss[i]
 end
-function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Array{T})
+function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Real, thres::Array{T})
+    tuples = [ber_famiss(r, f, x) for x in thres]
+    return [ [ x[y] for x in tuples] for y in 1:2]
+end
+function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Array{T}, thres::Array{T}=-plo)
+    size(plo) == size(plo) || error("Inconsistent vector lengths")
     tuples = [ber_famiss(r, f, x) for x in plo]
     return [ [ x[y] for x in tuples] for y in 1:2]
 end
 
 ## actual errors
-ber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :θ, plo)
+ber_famiss(r::Roc, plo::ArrayOrReal, thres=-plo) = ber_famiss(r, :θ, plo, thres)
 
-ber(r::Roc, plo::Real) = +(ber_famiss(r, plo)...)
-ber{T<:Real}(r::Roc, plo::Array{T}) = [ber(r, x) for x in plo]
+ber(r::Roc, plo::Real, thres::Real=-plo) = +(ber_famiss(r, plo, thres)...)
+ber{T<:Real}(r::Roc, plo::Real, thres::Array{T}) = [ber(r, plo, x) for x in thres]
+ber{T<:Real}(r::Roc, plo::Array{T}, thres::Array{T}=-plo) = [ber(r, x...) for x in zip(plo,thres)]
 
 ## minimum ber is best computed using a Roc structure
 minber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :llr, plo)
@@ -85,10 +102,20 @@ end
 
 ## Decision cost functions
 
-dcf(tar::Vector, non::Vector, d::DCF; norm=false) = applyfactor(d, ber(tar, non, plo(d)), norm)
-dcf(tnt::TNT, d::DCF; norm=false) = dcf(tnt.tar, tnt.non, d, norm=norm)
-dcf(r::Roc, d::DCF; norm=false) = applyfactor(d, ber(r, plo(d)), norm)
+## Allow a default DCF to be set
+Base.copy(d) = DCF(d.ptar, d.cfa, d.cmiss)
+function setdcf(;ptar=0.5, cfa=1, cmiss=1, d=DCF(ptar, cfa, cmiss))
+    global global_dcf = copy(d)
+end
+## set a default DCF
+setdcf()
+getdcf() = global_dcf
 
-mindcf(r::Roc, d::DCF; norm=false) = applyfactor(d, minber(r, plo(d)), norm)
-mindcf(tar::Vector, non::Vector, d::DCF; norm=false) = applyfactor(d, minber(roc(tar, non), plo(d)), norm)
-mindcf(tnt::TNT, d::DCF; norm=false) = mindcf(tnt.tar, tnt.non, d, norm=norm)
+
+dcf(tar::Vector, non::Vector; d::DCF=getdcf(), thres=-plo(d), norm=false) = applyfactor(d, ber(tar, non, plo(d), thres), norm)
+dcf(tnt::TNT; d::DCF=getdcf(), thres=-plo(d), norm=false) = dcf(tnt.tar, tnt.non, d=d, thres=thres, norm=norm)
+dcf(r::Roc; d::DCF=getdcf(), thres=-plo(d), norm=false) = applyfactor(d, ber(r, plo(d), thres), norm)
+
+mindcf(r::Roc; d::DCF=getdcf(), norm=false) = applyfactor(d, minber(r, plo(d)), norm)
+mindcf(tar::Vector, non::Vector; d::DCF=getdcf(), norm=false) = applyfactor(d, minber(roc(tar, non), plo(d)), norm)
+mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, norm=norm)
