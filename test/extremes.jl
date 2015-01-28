@@ -9,7 +9,7 @@ using Base.Test
 
 function test_both(tar, non, e1, e2)
     r = roc(tar, non)
-    plot(r)
+#    rocplot(r)
     eer1 = eerch(r)
     eer2 = eer(tar, non)
     println("EERch = ", eer1)
