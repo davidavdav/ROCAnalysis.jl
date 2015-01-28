@@ -5,11 +5,11 @@ ROC.jl
 
 Receiver Operating Characteristics and functions for evaluation probabilistic binary classifiers. 
 
-Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl).
+Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl), and support for ROC analysis also exists in [MLBase](https://github.com/lindahua/MLBase.jj). 
 
 Our implementation is more geared towards:
  - large amounts of data, with efficient ROC statistics calculation
- - Cost function analysis
+ - Decision Cost Function analysis
  - Detection Error Trade-off (DET) analysis
  - ROC convex hull computation, analysis and EER-interpretation
  - Optimal Likelihood Ratio computation
@@ -30,20 +30,35 @@ r = roc(tar, non)
 eerch(r)
 ## roc plot, we plot errors (false negatives against false positives) rather than hits vs. false alarms.  
 plot(r)
-## this should give a more/less straight line
+## The "Detection Error Tradeoff" plot, this should give a more/less straight line
 detplot(r)
 ## compute the Area Under the ROC, should be close to 0.078
 auc(r)
 ## define a decision cost function by its parameter p_tar=0.01, Cfa=1, Cmiss=10 (NIST SRE 2008 setting)
 d = DCF(0.01, 1, 10)
-## `actual costs' using a threshold of scores at -lpo(d)
-lpo(d)
-dcf(tar, non, d)
+## `actual costs' using a threshold of scores at -plo(d) (minus prior log odds)
+plo(d)
+dcf(tar, non, d=d)
+## Or use a different threshold, e.g., zero
+dcf(tar, non, d=d, thres=0)
 ## `minimal costs' using an optimal threshold
-mindcf(r, d)
-## define an array of DCFs, and compute the decision costs for these, using a threshold at -lpo
-d = DCF([0.001, 0.01. 0.1, 0.5, 0.9, 0.99, 0.999], 1, 1)
-dcf(tar, non, d)
+mindcf(r, d=d)
+## define an array of DCFs, and compute the decision costs for these, using a threshold at -plo
+d = DCF([0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999], 1, 1)
+dcf(tar, non, d=d)
+## same, but normalized to costs of decisions based on the prior alone
+dcf(tar, non, d=d, norm=true)
+## prior log odds, thre crucial combination of cost parameters, log(p_tar / (1-p_tar) Cmiss / Cfa)
+plo(d)
+## now scan the Bayes error rate (similar to the dcf above) for a range of prior log odds, and plot
+## This is known as the Applied Probability of Error plot
+apeplot(r)
+## The area under the red curve (actual error rates), the cost of the log-likelihood ratio
+cllr(tar, non)
+## The area under the green curve (minimum errors), the cost of the optimal log-likelihood-ratio
+minclrr(tar, non)
+## Similar to APE, but normalized---a Normalized Bayes Error plot
+nbeplot(r)
 ## Make an `LLR' plot: score-to-optimal-LLR mapping, r.θ, vs. r.llr
 llrplot(r)
 ```
@@ -116,7 +131,19 @@ The ROC and DET plots shows the discrimination capability of the detector as a g
 - *Cost of the Log-Likelihood-Ratio*. `cllr()` computes a normalized form of the cross-entropy between the "true posterior" (`1` for target trials and `0` for non-target trials) and the posterior resulting from the classifier score when interpreted as a likelihood ratio, and using a prior for the classes of 0.5.  This measure is _calibration sensitive_, i.e., it penalizes under- or over-confident likelihood ratios.  The minimum value is determined by the discriminative properties of the classifier, and this minimum approaches 0 for a classifier that completely separates the two classes.  A value of 1 indicates that the classifier gives no information, i.e., decisions can just as well be made based on the prior only.  A value larger than 1 indicates that making Bayes's decisions based on the classifiers score gives a higher expected cost than basing decisions on the prior alone.
 - *Minimum Cllr", `mincllr()` computes the minimum attainable Cllr by warping the scores to log-likelihood-ratios while maintaining the order of the scores.  This is equivalent to determining a minimum cost for all cost functions that can be written as a linear combination of actual miss- and false-alarm-rates, and integrating these costs over cost function parameters.
 
-- 
+Types
+----
+We have defined the following types:
+- `TNT(tar, non)`,  A container for arrays of target and non-target scores.   Anywhere it says `tar, non` you should be able to substitute a variable of type `TNT`.
+- `DCF(ptar,cfa,cmiss)`.  A container for scalars or arrays of the cost function parameters `ptar` (the prior probability of a target), `cfa` (the cost of a false alarm) and `cmiss` (the cost of a miss).  In any of the parameters are arrays, they must be of compatible size.
+- `Roc(pfa, pmiss, θ, chull, llr)`.  The basic structure for storing ROC results. It contains the x- and y-coordiantes of the (error-based) ROC, together with the threshold.  Many of the "minimum" performance measures can be computed from this.  The fields in `Roc` have the following interpretation:
+ - `pfa`.  The probability of a false alarm, the fraction of non-target scores _above_ (or equal to) the threshold `θ`.  This quantity is also known as false alarm/accept/positive/match rate or type II error, and `1-pfa` is known as the true negative/reject rate or specificity.
+ - `pmiss`.  The probability of a miss, the fraction of target scores _below_ (or equal to) the threshold `θ`.  This quantity is also known, a.o. miss rate, false negative/reject/non-match rate, type I error, and `1-pmiss` is also known as true positive rate, sensitivity, recall, verification/hit rate, genuine acceptance rate.
+ - `θ`. The threshold associated with the elements in `pfa` and `pmiss`.  It can be seen as lying between _this_ `pfa/miss` and _the next_.  Hence, there is one value less than in the `pmiss` and `pfa` arrays.
+ - `chull`.  A boolean indicating whether or not the point `(pfa,pmiss))` lies on the _convex hull_.
+ - `llr`.  The optimal log-likelihood-ratio associated with scores at `θ`.  
+
+
 Notes
 -----
 This is very much work in progress.  If you stumble upon this, please drop me a line. 

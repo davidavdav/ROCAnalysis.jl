@@ -3,6 +3,6 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-using Winston
+using Requires
 using NumericExtensions
 using DataFrames

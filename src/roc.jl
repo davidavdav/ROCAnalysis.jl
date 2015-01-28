@@ -156,3 +156,7 @@ function Base.getindex(r::Roc, i::Integer)
         return (r.pfa[i], r.pmiss[i], r.θ[i], r.ch[i], r.llr[i])
     end
 end
+
+## R terminology, quantile function qnorm() and cumulative distribution pnorm()
+qnorm(x) = √2 * erfinv(2x-1)
+pnorm(x) = (1 + erf(x/√2)) / 2 
