@@ -4,7 +4,8 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 @require Winston begin
-
+    using Winston
+    
     function rocplot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss")
         col = string("krgmcb"[(nr-1) % 6 + 1])
         lty = ["-", "--", ";"][div(nr-1,6) + 1]
@@ -24,7 +25,7 @@
         end
         return p
     end
-    Winston.plot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss") = rocplot(r::RWoc, nr; title=title, xlabel=clabel, ylabel=ylabel)
+    Winston.plot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss") = rocplot(r::RWoc, nr; title=title, xlabel=xlabel, ylabel=ylabel)
 
     function detplot(r::Roc, nr=1; xlabel="Pfa (%)", ylabel="Pmiss (%)", title="DET plot")
         if nr==1
@@ -38,17 +39,17 @@
                 end
             end
             grid ./= 100
-            p = plot()
+            p = Winston.plot()
             setattr(p, :aspect_ratio, 1) # essential for DET plots!
             Winston.title(title)
             xlim(qnorm(0.8e-3), qnorm(0.55))
             ylim(qnorm(0.8e-3), qnorm(0.55))
             for axis in (p.x1, p.y1)
-                setattr(axis, "draw_subticks", false)
-                setattr(axis, "ticks", qnorm(grid))
-                setattr(axis, "ticklabels", ticklabels)
-                setattr(axis, "tickdir", 1)
-                setattr(axis, "draw_grid", true)
+                Winston.setattr(axis, "draw_subticks", false)
+                Winston.setattr(axis, "ticks", qnorm(grid))
+                Winston.setattr(axis, "ticklabels", ticklabels)
+                Winston.setattr(axis, "tickdir", 1)
+                Winston.setattr(axis, "draw_grid", true)
             end
             for axis in (p.x2, p.y2)
                 setattr(axis, "draw_ticks", false)
