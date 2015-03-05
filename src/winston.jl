@@ -25,7 +25,7 @@
         end
         return p
     end
-    Winston.plot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss") = rocplot(r::RWoc, nr; title=title, xlabel=xlabel, ylabel=ylabel)
+    Winston.plot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss") = rocplot(r::Roc, nr; title=title, xlabel=xlabel, ylabel=ylabel)
 
     function detplot(r::Roc, nr=1; xlabel="Pfa (%)", ylabel="Pmiss (%)", title="DET plot")
         if nr==1
