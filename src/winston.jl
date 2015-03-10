@@ -59,7 +59,7 @@
         end
         col = string("krgmcb"[(nr-1) % 6 + 1])
         lty = ["-", "--", ";"][div(nr-1,6) + 1]
-        oplot(qnorm(r.pfa), qnorm(r.pmiss), lty * col)
+        p = oplot(qnorm(r.pfa), qnorm(r.pmiss), lty * col)
         return p
     end
 
