@@ -3,7 +3,7 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-include("roc.jl")
+include("main.jl")
 include("eer.jl")
 include("cllr.jl")
 include("auc.jl")

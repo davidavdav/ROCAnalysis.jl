@@ -7,8 +7,8 @@
 
 ## Accept a DataFrame with :target and :score columns to most functions
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
-    t = array(x[target])
-    s = array(x[score])
+    t = convert(Array, x[target])
+    s = convert(Array, x[score])
     TNT(s[t], s[!t])
 end
 
