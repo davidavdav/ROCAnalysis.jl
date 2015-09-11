@@ -2,6 +2,15 @@ ROC.jl
 ======
 [![Build Status](https://travis-ci.org/davidavdav/ROC.jl.svg?branch=master)](https://travis-ci.org/davidavdav/ROC.jl)
 
+Install
+-------
+
+```julia
+Pkg.clone("https://github.com/davidavdav/ROC.jl.git")
+```
+
+Introduction
+------------
 
 Receiver Operating Characteristics and functions for evaluation probabilistic binary classifiers. 
 
@@ -19,6 +28,7 @@ The development roadmap is largely based on the functionality in a similar R pac
 Synopsis
 ----
 ```julia
+using ROC
 ## Produce some well-calibrated log-likelihood-ratio scores for target and non-target class:
 tar =  2 + 2randn(1000)
 non = -2 + 2randn(100000)
@@ -28,7 +38,8 @@ eer(tar, non)
 r = roc(tar, non)
 ## accurate computation of the equal error rate, using the convex hull
 eerch(r)
-## roc plot, we plot errors (false negatives against false positives) rather than hits vs. false alarms.  
+## roc plot, we plot errors (false negatives against false positives) rather than hits vs. false alarms.
+using Winston ## or perhaps another plotting package
 plot(r)
 ## The "Detection Error Tradeoff" plot, this should give a more/less straight line
 detplot(r)
