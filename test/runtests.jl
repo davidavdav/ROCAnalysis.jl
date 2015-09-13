@@ -4,8 +4,8 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 using ROC
-using DataFrames
-using NumericExtensions
+using NumericFuns
+using DataFrames.readtable
 
 include("extremes.jl")
 include("big.jl")

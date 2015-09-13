@@ -40,7 +40,7 @@ function optllr{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace=true)
     ntar = length(tar)
     nnon = length(non)
     ntar > 0 && nnon > 0 || error("Lenghts must be nonzero")
-    o = sortperm([tar, non])
+    o = sortperm([tar; non])
     pideal = zeros(ntar + nnon + 4laplace)
     ## set pideal=1 for target scores
     for i=1:ntar+nnon

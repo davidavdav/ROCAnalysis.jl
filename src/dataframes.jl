@@ -31,5 +31,5 @@ dcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), thres=-
 mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, norm=norm)
 mindcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), norm=false) = mindcf(TNT(x, score=score, target=target), d=d, norm=norm)
 
-
-DataFrames.DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ), NA], chull=r.ch, llr=[DataArray(r.llr), NA])
+import DataFrames.DataFrame
+DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ); NA], chull=r.ch, llr=[DataArray(r.llr); NA])

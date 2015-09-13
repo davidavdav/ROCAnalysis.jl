@@ -12,8 +12,8 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, colla
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
     ## now we can compute pmiss and pfa
-    pfa = [1, 1 - cumsum(nc)/length(non)]
-    pmiss = [0, cumsum(tc)/length(tar)]
+    pfa = [1; 1 - cumsum(nc)/length(non)]
+    pmiss = [0; cumsum(tc)/length(tar)]
     ## convex hull and llr
     ch, llr = chllr(tc, nc, xo, laplace=laplace)
     if collapse
@@ -38,7 +38,7 @@ end
 ## bins scores that are the same into aggredated score counts
 function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
     nc = 1 - tc
-    changes = find([true, diff(xo) .!= 0, true]) # points where threshold change
+    changes = find([true; diff(xo) .!= 0; true]) # points where threshold change
     θ = xo                                       # threshold
     keep = trues(length(tc))
     @inbounds for i=1:length(changes)-1
@@ -56,22 +56,22 @@ end
 ## This finds the change points on the ROC (the corner points)
 function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
     (const_pfa, const_pmiss) = map(a -> diff(a) .== 0, (pfa, pmiss)) # no changes
-    return [true, ! (const_pfa[1:end-1]  &  const_pfa[2:end] | 
-                     const_pmiss[1:end-1] & const_pmiss[2:end]), true]
+    return [true; ! (const_pfa[1:end-1]  &  const_pfa[2:end] | 
+                     const_pmiss[1:end-1] & const_pmiss[2:end]); true]
 end
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
 function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true)
     if laplace
-        tc = [1, 0, tc, 1, 0]
-        nc = [0, 1, nc, 0, 1]
-        xo = [-Inf, -Inf, xo, Inf, Inf]
+        tc = [1; 0; tc; 1; 0]
+        nc = [0; 1; nc; 0; 1]
+        xo = [-Inf; -Inf; xo; Inf; Inf]
     end
     ntar = sum(tc)
     nnon = sum(nc)
 #    if fast
-        pfa = [1, 1 - cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
-        pmiss = [0, cumsum(tc)/ntar]
+        pfa = [1; 1 - cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
+        pmiss = [0; cumsum(tc)/ntar]
         index = rochull(pfa, pmiss)
 #    else
 #        pfa = [1, 1 - cumsum(nc)/nnon]
@@ -86,7 +86,7 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool
     (Δpfa, Δpmiss) = map(a -> diff(a[ch]), (pfa, pmiss))
     llr = log(abs(Δpmiss ./ Δpfa))[cumsum(ch)[1:end-1]]
     if laplace
-        return [true, ch[4:end-3], true], llr[3:end-2]
+        return [true; ch[4:end-3]; true], llr[3:end-2]
     else
         return ch, llr
     end
@@ -142,7 +142,7 @@ end
 Base.length(r::Roc) = length(r.pfa)
 Base.size(r::Roc) = (length(r),)
 function Base.size(r::Roc, d::Integer)
-    d==1 || error ("Roc is a 1-dimensional structure")
+    d==1 || error("Roc is a 1-dimensional structure")
     return length(r)
 end
 Base.start(r::Roc) = 1

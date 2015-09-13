@@ -3,6 +3,7 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
+if !isdefined(:TNT)
 
 ## TNT: a target-nontarget tuple
 type TNT{T<:Real}
@@ -35,3 +36,5 @@ type DCF{PTT,CFT,CMT}
 end
 typealias ArrayOrReal{T<:Real} Union(Array{T}, Real)
 DCF(ptar::ArrayOrReal, cfa::ArrayOrReal, cmiss::ArrayOrReal) = DCF{typeof(ptar),typeof(cfa),typeof(cmiss)}(ptar, cfa, cmiss)
+
+end

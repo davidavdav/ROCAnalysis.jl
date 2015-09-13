@@ -58,7 +58,7 @@ for norm in (false, true)
 end
 
 ## array
-lo = [-7:0.01:7]
+lo = collect(-7:0.01:7)
 dc = DCF(sigmoid(lo), 1, 1)
 
 @test_approx_eq_eps ber(x,lo) ber(ruc,lo) 1e-5

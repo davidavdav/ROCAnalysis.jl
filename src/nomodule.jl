@@ -7,6 +7,6 @@
 include("modules.jl")
 
 ## skip reading types that have been read before
-require("roctypes.jl")
+include("roctypes.jl")
 
 include("includes.jl")
