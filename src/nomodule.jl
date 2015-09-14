@@ -7,6 +7,8 @@
 include("modules.jl")
 
 ## skip reading types that have been read before
-include("roctypes.jl")
+if !isdefined(:TNT)
+    include("roctypes.jl")
+end
 
 include("includes.jl")
