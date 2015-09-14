@@ -4,6 +4,23 @@
 ## This code is licenced under the MIT software license
 
 ## eerch: computes the eer using the convex hull method
+"""
+`eerch()` computes the Equal Error Rate using the Convex Hull interpretation.  This computes the error 
+rate at which the convex hull of the ROC curve crosses the `y=x` diagonal in the ROC.  
+
+This value is less sensitive to trial sampling at low number of trials, and has the interpretation of
+`the maximum while vary prior of the minimum decision costs'---a useful quantity in decision cost
+function analysis of a two class classification system.  
+
+Arguments:
+
+ - `r::Roc`: an object of type `Roc`, the result of `roc()`
+
+ - `tar, non`: Vectors of target and non-target scores
+
+ - `pfa, pmiss, ch`: Vectors of the false positive and false negative rate, and an array indicating 
+  the membership of the `(pfa, pmiss)` point on the convex hull.  These points are found by `roc()`.  
+"""
 eerch(r::Roc) = eerch(r.pfa, r.pmiss, r.ch)
 eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 
@@ -40,6 +57,15 @@ function crossing(ax, ay, bx, by)
 end
 
 ## just a simple EER approximation, optimized for memory and speed
+"""
+`eer(tar, non)` computes a simple approximation to the Equal Error
+Rate, the intersection of the ROC with the line `y=x`, i.e., the error
+rate at which the false positive rate and the false negative rate are
+approximately equal.
+
+For a more consistent interpretation and implementation of the EER, please consider `eerch()`, 
+the Equal Error Rate - Convex Hull computation.
+"""
 eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
 
 ## if tar and non are sorted, we may be doing even faster...

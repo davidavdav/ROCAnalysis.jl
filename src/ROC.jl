@@ -5,7 +5,7 @@
 
 module ROC
 
-export ROC, TNT, DCF, DataFrame, roc, chllr, eerch, pav, eer, plot, detplot, llrplot, qnorm, pnorm, cllr, mincllr, auc, oeff, peff,  plo, ber, minber, dcf, mindcf, setdcf, getdcf
+export ROC, TNT, DCF, DataFrame, roc, chllr, eerch, pav, eer, plot, detplot, llrplot, qnorm, pnorm, cllr, mincllr, auc, oeff, peff, plo, ber, minber, dcf, mindcf, setdcf, getdcf
 
 include("modules.jl")
 
