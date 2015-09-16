@@ -4,5 +4,5 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 using Requires
-using DataFrames: AbstractDataFrame, DataFrame, DataArray
+using DataFrames: AbstractDataFrame, DataFrame, DataArray, NA
 using NumericFuns

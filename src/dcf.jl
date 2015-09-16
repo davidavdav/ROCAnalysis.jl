@@ -73,7 +73,7 @@ may be `collapse`d.
 optimum described above.  This can be used if the scores are not
 correctly calibrated. 
 """
-function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::T2, thres::T2=-plo)
+function ber{T1<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Real=-plo)
     nmiss = nfa = 0
     for x in tar
         nmiss += x ≤ thres

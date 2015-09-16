@@ -12,7 +12,7 @@ Pkg.clone("https://github.com/davidavdav/ROCAnalysis.jl.git")
 Introduction
 ------------
 
-Receiver Operating Characteristic Analysis functions for evaluation probabilistic binary classifiers. 
+Receiver Operating Characteristic Analysis functions for evaluation probabilistic binary classifiers.   Allows efficient plotting of ROC curves, and many more things. 
 
 Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl), and support for ROC analysis also exists in [MLBase](https://github.com/lindahua/MLBase.jj). 
 
@@ -27,6 +27,7 @@ The development roadmap is largely based on the functionality in a similar R pac
 
 Synopsis
 ----
+An [annotated jupyter notebook](ROCAnalysis.ipynb) of the code below can be found [here](http://nbviewer.jupyter.org/github/davidavdav/ROCAnalysis.jl/blob/master/ROCAnalysis.ipynb).
 ```julia
 using ROCAnalysis
 ## Produce some well-calibrated log-likelihood-ratio scores for target and non-target class:

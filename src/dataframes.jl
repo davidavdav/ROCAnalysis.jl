@@ -6,6 +6,9 @@
 ## We also implement most TNT arguments here.
 
 ## Accept a DataFrame with :target and :score columns to most functions
+"""
+TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not. 
+"""
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
     t = convert(Array, x[target])
     s = convert(Array, x[score])
@@ -32,4 +35,17 @@ mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, no
 mindcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), norm=false) = mindcf(TNT(x, score=score, target=target), d=d, norm=norm)
 
 import DataFrames.DataFrame
+"""
+`Dataframe(::Roc)` converts a `Roc` object in a datframe with columns:
+
+ - `pfa` the false alarm rate
+
+ - `pmiss` the miss rate
+
+ - `thres` the thereshold, separating this line's pfa and pmiss from the next
+
+ - `chull` indicating if this point is on the convex hull of the ROC curve
+
+ - `llr` the optimal log-likelihood-ratio score for all data points contributing to the ROC line segment from this line to the next
+"""
 DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ); NA], chull=r.ch, llr=[DataArray(r.llr); NA])
