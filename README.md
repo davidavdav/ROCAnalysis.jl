@@ -1,18 +1,18 @@
-ROC.jl
+ROCAnalysis.jl
 ======
-[![Build Status](https://travis-ci.org/davidavdav/ROC.jl.svg?branch=master)](https://travis-ci.org/davidavdav/ROC.jl)
+[![Build Status](https://travis-ci.org/davidavdav/ROCAnalysis.jl.svg?branch=master)](https://travis-ci.org/davidavdav/ROCAnalysis.jl)
 
 Install
 -------
 
 ```julia
-Pkg.clone("https://github.com/davidavdav/ROC.jl.git")
+Pkg.clone("https://github.com/davidavdav/ROCAnalysis.jl.git")
 ```
 
 Introduction
 ------------
 
-Receiver Operating Characteristics and functions for evaluation probabilistic binary classifiers. 
+Receiver Operating Characteristic Analysis functions for evaluation probabilistic binary classifiers. 
 
 Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl), and support for ROC analysis also exists in [MLBase](https://github.com/lindahua/MLBase.jj). 
 
@@ -28,7 +28,7 @@ The development roadmap is largely based on the functionality in a similar R pac
 Synopsis
 ----
 ```julia
-using ROC
+using ROCAnalysis
 ## Produce some well-calibrated log-likelihood-ratio scores for target and non-target class:
 tar =  2 + 2randn(1000)
 non = -2 + 2randn(100000)
@@ -124,11 +124,11 @@ A _detection error trade-off_ plot (Martin, 1997) is exactly the same as a ROC p
 
 ### Discrete and continuous scores
 
-There is an essential difference between discrete score (classes) and continuous scores.  For the former, trials with the same scores must be grouped before the probabilities of false alarm and miss are computed.  This results in ROC and DET plots that can have line elements that are not solely horizontal or vertical.  This is contrary to the latter case if we assume that no two scores are (coincidentally)  the same, which leads to only horizontal and vertical line segments.  This `ROC` package makes sure that the occurrence of identical scores is treated correctly by sorting target scores before identical non-target scores, and by treating trials with scores _at_ the threshold always as errors. 
+There is an essential difference between discrete score (classes) and continuous scores.  For the former, trials with the same scores must be grouped before the probabilities of false alarm and miss are computed.  This results in ROC and DET plots that can have line elements that are not solely horizontal or vertical.  This is contrary to the latter case if we assume that no two scores are (coincidentally)  the same, which leads to only horizontal and vertical line segments.  This `ROCAnalysis` package makes sure that the occurrence of identical scores is treated correctly by sorting target scores before identical non-target scores, and by treating trials with scores _at_ the threshold always as errors. 
 
 ### Plot optimisation
 
-For larget trial sets, it is very likely that in the extrems of the score distributions there is very little overlap.  This wil results in many consecutive horizontal or vertical line segments in the plot.   This `ROC` package integrates these consecutive line segments and replaces them by a single segment, which leads to a strong reduction in complexity in further calculations and plotting.  
+For larget trial sets, it is very likely that in the extrems of the score distributions there is very little overlap.  This wil results in many consecutive horizontal or vertical line segments in the plot.   This `ROCAnalysis` package integrates these consecutive line segments and replaces them by a single segment, which leads to a strong reduction in complexity in further calculations and plotting.  
 
 ## Single-numbered metrics
 

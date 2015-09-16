@@ -3,7 +3,7 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-using ROC
+using ROCAnalysis
 using NumericFuns
 using DataFrames.readtable
 

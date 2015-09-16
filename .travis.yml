@@ -1,3 +1,4 @@
+sudo: false
 language: julia
 julia:
  - 0.3
@@ -6,4 +7,4 @@ julia:
 before_install:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
-  - xvfb-run julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROC"); Pkg.test("ROC")'
+  - xvfb-run julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROCAnalysis"); Pkg.test("ROCAnalysis")'
