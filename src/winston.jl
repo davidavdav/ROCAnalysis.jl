@@ -30,7 +30,7 @@
     function detplot(r::Roc, nr=1; xlabel="Pfa (%)", ylabel="Pmiss (%)", title="DET plot")
         if nr==1
             grid = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 40]
-            ticklabels = String[]
+            ticklabels = AbstractString[]
             for x in grid
                 if x<1
                     push!(ticklabels, @sprintf("%3.1f", x))

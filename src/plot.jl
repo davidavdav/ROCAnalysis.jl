@@ -3,7 +3,7 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-missing(s::String) = warn(s * "(): you need to load a plotting package (Winston)")
+missing(s::AbstractString) = warn(s * "(): you need to load a plotting package (Winston)")
 
 rocplot(r::Roc, nr=1; kwargs...) = missing("rocplot")
 detplot(r::Roc, nr=1; kwargs...) = missing("detplot")

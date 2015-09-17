@@ -49,5 +49,9 @@ type DCF{PTT,CFT,CMT}
         new(ptar, cfa, cmiss)
     end
 end
-typealias ArrayOrReal{T<:Real} Union(Array{T}, Real)
+if VERSION < v"0.4.0-dev"
+    typealias ArrayOrReal{T<:Real} Union(Array{T}, Real)
+else
+    typealias ArrayOrReal{T<:Real} Union{Array{T}, Real}
+end
 DCF(ptar::ArrayOrReal, cfa::ArrayOrReal, cmiss::ArrayOrReal) = DCF{typeof(ptar),typeof(cfa),typeof(cmiss)}(ptar, cfa, cmiss)

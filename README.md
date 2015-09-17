@@ -14,7 +14,7 @@ Introduction
 
 Receiver Operating Characteristic Analysis functions for evaluation probabilistic binary classifiers.   Allows efficient plotting of ROC curves, and many more things. 
 
-Please note there is an alternative implementation under [the same name](https://github.com/diegozea/ROC.jl), and support for ROC analysis also exists in [MLBase](https://github.com/lindahua/MLBase.jj). 
+Please note there is an alternative implementation under [a similar name](https://github.com/diegozea/ROC.jl), and support for ROC analysis also exists in [MLBase](https://github.com/lindahua/MLBase.jl). 
 
 Our implementation is more geared towards:
  - large amounts of data, with efficient ROC statistics calculation

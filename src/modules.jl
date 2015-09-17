@@ -3,6 +3,7 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
+using Compat
 using Requires
 using DataFrames: AbstractDataFrame, DataFrame, DataArray, NA
 using NumericFuns

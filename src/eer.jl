@@ -26,7 +26,7 @@ eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 
 ## compute the EER given corresponding pfa and pmiss array, but use the
 ## cunvex hull points only.
-function eerch{T<:FloatingPoint}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
+function eerch{T<:AbstractFloat}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
     chi = find(ch)
