@@ -6,7 +6,7 @@ Install
 -------
 
 ```julia
-Pkg.clone("https://github.com/davidavdav/ROCAnalysis.jl.git")
+Pkg.add("ROCAnalysis")
 ```
 
 Introduction
