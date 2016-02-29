@@ -167,7 +167,7 @@ end
 ## Decision cost functions
 
 ## Allow a default DCF to be set
-Base.copy(d) = DCF(d.ptar, d.cfa, d.cmiss)
+Base.copy(d::DCF) = DCF(d.ptar, d.cfa, d.cmiss)
 """
 `setdcf()` allows a global decision cost function to be set.  This DCF can be used in `dcf()` and `mindcf()`.   The decision cost function is defined as 
 
