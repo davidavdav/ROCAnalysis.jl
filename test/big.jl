@@ -24,10 +24,10 @@ non = -2 + 2randn(1_000_000)
 ## AUC
 pauc = 0.0786496
 @test_approx_eq_eps auc(r) pauc 0.01
+auc(r, pfa=0.1)
+AUC(r, pfa=0.1)
 
 ## Cllr
 cllr2 = 0.5140558 ## Cllr for distributions with μ = ±2 and σ = 2, i.e., d'=2
 @test_approx_eq_eps cllr(tar,non) cllr2 0.01
 @test_approx_eq_eps mincllr(tar,non) cllr2 0.01
-
-

@@ -12,5 +12,6 @@ include("dcf.jl")
 
 include("plot.jl")
 include("winston.jl")
+include("pyplot.jl")
 
 include("dataframes.jl")

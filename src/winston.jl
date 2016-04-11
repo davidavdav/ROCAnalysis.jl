@@ -4,7 +4,7 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 @require Winston begin
-    using Winston
+    import Winston
     
     function rocplot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss")
         col = string("krgmcb"[(nr-1) % 6 + 1])
@@ -16,12 +16,12 @@
             x, y = r.pfa, r.pmiss
         end
         if nr==1
-            p = plot(x, y, lty*col)
+            p = Winston.plot(x, y, lty*col)
             Winston.xlabel(xlabel)
             Winston.ylabel(ylabel)
             Winston.title(title)
         else
-            p = oplot(x, y, lty * col)
+            p = Winston.oplot(x, y, lty * col)
         end
         return p
     end
@@ -59,7 +59,7 @@
         end
         col = string("krgmcb"[(nr-1) % 6 + 1])
         lty = ["-", "--", ";"][div(nr-1,6) + 1]
-        p = oplot(qnorm(r.pfa), qnorm(r.pmiss), lty * col)
+        p = Winston.oplot(qnorm(r.pfa), qnorm(r.pmiss), lty * col)
         return p
     end
 
@@ -67,7 +67,7 @@
         mi = max(minimum(r.llr), minimum(r.θ))
         ma = min(maximum(r.llr), maximum(r.θ))
         ran = [mi,ma]
-        p = plot(r.θ, r.llr)
+        p = Winston.plot(r.θ, r.llr)
         xlim(ran)
         ylim(ran)
         Winston.title(title)
@@ -82,8 +82,8 @@
         mbe = minber(r, lo)
         defbe = 1 ./ normfactor(lo)
         p = plot(lo, be, "-r")
-        oplot(lo, mbe, "-g")
-        oplot(lo, defbe, "--k")
+        Winston.oplot(lo, mbe, "-g")
+        Winston.oplot(lo, defbe, "--k")
         ylim(0, 1.1*maximum(be))
         Winston.title(title)
         Winston.xlabel(xlabel)
@@ -99,11 +99,11 @@
         mbfa, mbmiss = [mbe .* norm for mbe in minber_famiss(r, lo)]
         mnbe = minber(r, lo) .* norm
         p = plot(lo, nbe, "-r")
-        oplot(lo, mnbe, "-g")
-        oplot(lo, bfa, "--r")
-        oplot(lo, bmiss, "-.r")
-        oplot(lo, mbfa, "--g")
-        oplot(lo, mbmiss, "-.g")
+        Winston.oplot(lo, mnbe, "-g")
+        Winston.oplot(lo, bfa, "--r")
+        Winston.oplot(lo, bmiss, "-.r")
+        Winston.oplot(lo, mbfa, "--g")
+        Winston.oplot(lo, mbmiss, "-.g")
         ylim(0, 1.1)
         Winston.title(title)
         Winston.xlabel(xlabel)
