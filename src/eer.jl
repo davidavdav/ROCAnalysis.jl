@@ -5,12 +5,12 @@
 
 ## eerch: computes the eer using the convex hull method
 """
-`eerch()` computes the Equal Error Rate using the Convex Hull interpretation.  This computes the error 
-rate at which the convex hull of the ROC curve crosses the `y=x` diagonal in the ROC.  
+`eerch()` computes the Equal Error Rate using the Convex Hull interpretation.  This computes the error
+rate at which the convex hull of the ROC curve crosses the `y=x` diagonal in the ROC.
 
 This value is less sensitive to trial sampling at low number of trials, and has the interpretation of
 `the maximum while vary prior of the minimum decision costs'---a useful quantity in decision cost
-function analysis of a two class classification system.  
+function analysis of a two class classification system.
 
 Arguments:
 
@@ -18,20 +18,20 @@ Arguments:
 
  - `tar, non`: Vectors of target and non-target scores
 
- - `pfa, pmiss, ch`: Vectors of the false positive and false negative rate, and an array indicating 
-  the membership of the `(pfa, pmiss)` point on the convex hull.  These points are found by `roc()`.  
+ - `pfa, pmiss, ch`: Vectors of the false positive and false negative rate, and an array indicating
+  the membership of the `(pfa, pmiss)` point on the convex hull.  These points are found by `roc()`.
 """
 eerch(r::Roc) = eerch(r.pfa, r.pmiss, r.ch)
 eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 
 ## compute the EER given corresponding pfa and pmiss array, but use the
-## cunvex hull points only.
+## convex hull points only.
 function eerch{T<:AbstractFloat}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
     chi = find(ch)
     i = chi[1]
-    direction = sign(pfa[i] - pmiss[i]) # >0 if first pfa > pmiss 
+    direction = sign(pfa[i] - pmiss[i]) # >0 if first pfa > pmiss
     ## does it pay off to do a binary search?  It should, really.
     li = i
     for i in chi
@@ -63,10 +63,11 @@ Rate, the intersection of the ROC with the line `y=x`, i.e., the error
 rate at which the false positive rate and the false negative rate are
 approximately equal.
 
-For a more consistent interpretation and implementation of the EER, please consider `eerch()`, 
+For a more consistent interpretation and implementation of the EER, please consider `eerch()`,
 the Equal Error Rate - Convex Hull computation.
 """
 eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
+eer(r::Roc) = eerch(r.pfa, r.pmiss, trues(length(r.pfa)))
 
 ## if tar and non are sorted, we may be doing even faster...
 function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
@@ -108,7 +109,7 @@ function binsearch{T<:Real}(x::Real, a::Vector{T}; lower=false, check=false)
     check && (issorted(a) || error("Array needs to be sorted"))
     mi = 1
     ma = length(a)
-    if x < a[mi] || lower && x == a[mi] 
+    if x < a[mi] || lower && x == a[mi]
         return 0
     elseif x > a[ma] || !lower && x == a[ma]
         return ma
@@ -167,7 +168,7 @@ function eer_experimental{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast
     @time if !fast
         pfa = 1.0 - cumsum(!truth)/nnon
         pmiss = cumsum(truth)/ntar
-    else                        # this takes less memory, but that's all I can say for it. 
+    else                        # this takes less memory, but that's all I can say for it.
         Δ = 1/nnon
         pfa = similar(scores)   # 1
         s = one(T)
@@ -189,4 +190,3 @@ function eer_experimental{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast
     end
     return res, (pfa, pmiss, scores[so]) # 1
 end
-

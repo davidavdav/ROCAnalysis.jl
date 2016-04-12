@@ -11,17 +11,24 @@ Optional parameters `pfa` or `pmiss` limit integration over only part of the ROC
 """
 function auc(r::Roc; pfa=1.0, pmiss=1.0, normalize=true)
     if pfa != 1.0 || pmiss != 1.0
-        if pfa !=1.0 && pmiss != 1.0 || ! (0.0 <= pfa <= 1.0) || !(0.0 <= pmiss <= 1.0)
+        if pfa != 1.0 && pmiss != 1.0 || ! (0.0 < pfa ≤ 1.0) || !(0.0 < pmiss ≤ 1.0)
             throw(DomainError)
         end
         if pfa < 1.0
-            i = binsearch(-pfa, -r.pfa) ## find threshold where FAR = 0.
+            i = binsearch(-pfa, -r.pfa) ## find threshold where FAR >= pfa
+            i < length(r) || error("Unexpected ROC data")
             norm = normalize ? 1/pfa/(2-pfa) : 1
-            return -norm * dot(r.pmiss[i:end-1] + r.pmiss[i+1:end], diff(r.pfa[i:end])) / 2
+            a = -dot(r.pmiss[i:end-1] + r.pmiss[i+1:end], diff(r.pfa[i:end])) / 2
+            ## compensate for the the fact that pfa > r.pfa[i]
+            a -= (r.pfa[i] - pfa) * (r.pmiss[i] - (r.pfa[i] - pfa) * (r.pmiss[i+1] - r.pmiss[i]) / 2(r.pfa[i+1] - r.pfa[i]))
+            return norm * a
         else
             i = binsearch(pmiss, r.pmiss)
+            i < length(r) || error("Unexpected ROC data")
             norm = normalize ? 1/pmiss/(2-pmiss) : 1
-            return norm * dot(r.pfa[1:i-1] + r.pfa[2:i], diff(r.pmiss[1:i])) / 2
+            a = dot(r.pfa[1:i] + r.pfa[2:i+1], diff(r.pmiss[1:i+1])) / 2
+            a -= (r.pmiss[i+1] - pmiss) * (r.pfa[i+1] - (r.pmiss[i+1] - pmiss) * (r.pfa[i+1] - r.pfa[i]) / 2(r.pmiss[i+1] - r.pmiss[i]))
+            return norm * a
         end
     else
         ## The probability that a random non-target score is higher than a target score
