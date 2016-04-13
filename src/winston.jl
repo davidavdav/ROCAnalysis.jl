@@ -5,7 +5,7 @@
 
 @require Winston begin
     import Winston
-    
+
     function rocplot(r::Roc, nr=1; ch=false, title="ROC", xlabel="Pfa", ylabel="Pmiss")
         col = string("krgmcb"[(nr-1) % 6 + 1])
         lty = ["-", "--", ";"][div(nr-1,6) + 1]
@@ -40,10 +40,10 @@
             end
             grid ./= 100
             p = Winston.plot()
-            setattr(p, :aspect_ratio, 1) # essential for DET plots!
+            Winston.setattr(p, :aspect_ratio, 1) # essential for DET plots!
             Winston.title(title)
-            xlim(qnorm(0.8e-3), qnorm(0.55))
-            ylim(qnorm(0.8e-3), qnorm(0.55))
+            Winston.xlim(qnorm(0.8e-3), qnorm(0.55))
+            Winston.ylim(qnorm(0.8e-3), qnorm(0.55))
             for axis in (p.x1, p.y1)
                 Winston.setattr(axis, "draw_subticks", false)
                 Winston.setattr(axis, "ticks", qnorm(grid))
@@ -52,7 +52,7 @@
                 Winston.setattr(axis, "draw_grid", true)
             end
             for axis in (p.x2, p.y2)
-                setattr(axis, "draw_ticks", false)
+                Winston.setattr(axis, "draw_ticks", false)
             end
             Winston.xlabel(xlabel)
             Winston.ylabel(ylabel)
@@ -66,10 +66,10 @@
     function llrplot(r::Roc; title="LLR plot", xlabel="score", ylabel="LLR")
         mi = max(minimum(r.llr), minimum(r.θ))
         ma = min(maximum(r.llr), maximum(r.θ))
-        ran = [mi,ma]
+        ran = [mi, ma]
         p = Winston.plot(r.θ, r.llr)
-        xlim(ran)
-        ylim(ran)
+        Winston.xlim(ran)
+        Winston.ylim(ran)
         Winston.title(title)
         Winston.xlabel(xlabel)
         Winston.ylabel(ylabel)
@@ -77,14 +77,14 @@
     end
 
     function apeplot(r::Roc; xmin=-7, xmax=7, title="Applied Probability of Error", xlabel="prior log odds", ylabel="Bayes error rate")
-        lo = [xmin:0.01:xmax]
+        lo = collect(xmin:0.01:xmax)
         be = ber(r, lo)
         mbe = minber(r, lo)
         defbe = 1 ./ normfactor(lo)
-        p = plot(lo, be, "-r")
+        p = Winston.plot(lo, be, "-r")
         Winston.oplot(lo, mbe, "-g")
         Winston.oplot(lo, defbe, "--k")
-        ylim(0, 1.1*maximum(be))
+        Winston.ylim(0, 1.1*maximum(be))
         Winston.title(title)
         Winston.xlabel(xlabel)
         Winston.ylabel(ylabel)
@@ -92,19 +92,19 @@
     end
 
     function nbeplot(r::Roc; xmin = -10, xmax = 5, title="Normalized Bayes' Error", xlabel="prior log odds", ylabel="normalized Bayes error")
-        lo = [xmin:0.01:xmax]
+        lo = collect(xmin:0.01:xmax)
         norm = normfactor(lo)
         bfa, bmiss = [be .* norm for be in ber_famiss(r, lo)]
         nbe = bfa + bmiss
         mbfa, mbmiss = [mbe .* norm for mbe in minber_famiss(r, lo)]
         mnbe = minber(r, lo) .* norm
-        p = plot(lo, nbe, "-r")
+        p = Winston.plot(lo, nbe, "-r")
         Winston.oplot(lo, mnbe, "-g")
         Winston.oplot(lo, bfa, "--r")
         Winston.oplot(lo, bmiss, "-.r")
         Winston.oplot(lo, mbfa, "--g")
         Winston.oplot(lo, mbmiss, "-.g")
-        ylim(0, 1.1)
+        Winston.ylim(0, 1.1)
         Winston.title(title)
         Winston.xlabel(xlabel)
         Winston.ylabel(ylabel)
