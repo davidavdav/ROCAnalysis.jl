@@ -7,7 +7,7 @@
 
 ## Accept a DataFrame with :target and :score columns to most functions
 """
-TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not. 
+TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not.
 """
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
     t = convert(Array, x[target])
@@ -28,10 +28,8 @@ for f in (:ber, :minber)
     @eval ($f)(x::AbstractDataFrame, plo; score=:score, target=:target) = ($f)(TNT(x, score=score, target=target), plo)
 end
 
-dcf(tnt::TNT; d::DCF=getdcf(), thres=-plo(d), norm=false) = dcf(tnt.tar, tnt.non, d=d, thres=thres, norm=norm)
 dcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), thres=-plo(d), norm=false) = dcf(TNT(x, score=score, target=target), d=d, thres=thres, norm=norm)
 
-mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, norm=norm)
 mindcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), norm=false) = mindcf(TNT(x, score=score, target=target), d=d, norm=norm)
 
 import DataFrames.DataFrame
