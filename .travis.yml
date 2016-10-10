@@ -3,7 +3,10 @@ language: julia
 julia:
  - 0.3
  - 0.4
+ - 0.5
+ - nightly
 before_install:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
-  - xvfb-run julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROCAnalysis"); Pkg.test("ROCAnalysis")'
+  - julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("ROCAnalysis")'
+  - xvfb-run julia --check-bounds=yes -e 'Pkg.test("ROCAnalysis", coverage=true)'
