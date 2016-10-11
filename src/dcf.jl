@@ -236,12 +236,13 @@ mindcf(r::Roc; d::DCF=getdcf(), norm=false) = applyfactor(d, minber(r, plo(d)), 
 mindcf(tar::Vector, non::Vector; d::DCF=getdcf(), norm=false) = applyfactor(d, minber(roc(tar, non), plo(d)), norm)
 mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, norm=norm)
 
-Base.show(io::IO, ::MIME"text/plain", dcf::DCF) = show(io, a)
+Base.show(io::IO, dcf::DCF) = print(io, "Ptar = ", dcf.ptar, ", Cfa = ", dcf.cfa, ", Cmiss = ", dcf.cmiss)
+
 if VERSION < v"0.5.0-dev+4356"
-    Base.writemime(io::IO, ::MIME"text/plain", dcf::DCF) = show(io, dcf)
+    Base.writemime(io::IO, ::MIME"text/plain", dcf::DCF) = show(io, MIME"text/plain", dcf)
 end
 
-function Base.show(io::IO, dcf::DCF)
+function Base.show(io::IO, ::MIME"text/plain", dcf::DCF)
     println(io, "Ptar = ", dcf.ptar, ", Cfa = ", dcf.cfa, ", Cmiss = ", dcf.cmiss)
     println(io, " prior log-odds = ", plo(dcf))
     println(io, " effective prior odds = ", oeff(dcf))

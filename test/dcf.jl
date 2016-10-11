@@ -13,6 +13,9 @@ d = DCF(0.01, 1, 10)            # nist 2008
 @test_approx_eq oeff(d) 1/9.9
 @test_approx_eq peff(d) 1/10.9
 @test_approx_eq plo(d) -log(9.9)
+## print
+show(STDOUT, MIME"text/plain"(), d)
+println([d,d])
 
 lo = plo(d)
 b = 0.03291547867387523
