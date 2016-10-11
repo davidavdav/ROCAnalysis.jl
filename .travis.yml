@@ -1,7 +1,6 @@
 sudo: false
 language: julia
 julia:
- - 0.3
  - 0.4
  - 0.5
  - nightly
