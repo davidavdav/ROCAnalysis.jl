@@ -12,7 +12,7 @@ TNT(::DataFrame; optional-args) extracts target and non-target scores from a dat
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
     t = convert(Array, x[target])
     s = convert(Array, x[score])
-    TNT(s[t], s[!t])
+    TNT(s[t], s[.!t])
 end
 
 for f in (:eer, :eerch, :auc, :cllr, :mincllr)

@@ -8,26 +8,26 @@
 ## and be more efficient with memory and sorting.
 
 """
-`roc(tar, non; laplace, collapse)` computes the essential statistics for evaluation of the 
-performance of a two-class classifier.  The true class of the scores is encoded in the 
-array in which they appear, i.e., `tar`get or `non`-target scores. 
+`roc(tar, non; laplace, collapse)` computes the essential statistics for evaluation of the
+performance of a two-class classifier.  The true class of the scores is encoded in the
+array in which they appear, i.e., `tar`get or `non`-target scores.
 
 The results are given in a type `Roc`, containing the receiver-operating-characteristics (ROC) data
-for this test.  
+for this test.
 
 Optional arguments:
- 
- - `collapse=true`, indicating whether the resulting araays for the probability of 
-false positives (alarms) and negatives (misses) should be collapsed, i.e., consecutive points 
-on the ROC that have the same false positive or false negatove rate are removed, retaining 
-only the `corner' points of the ROC. 
 
- - `laplace=false`, indicating whether two additional data points at either end of the score scale 
+ - `collapse=true`, indicating whether the resulting araays for the probability of
+false positives (alarms) and negatives (misses) should be collapsed, i.e., consecutive points
+on the ROC that have the same false positive or false negatove rate are removed, retaining
+only the `corner' points of the ROC.
+
+ - `laplace=false`, indicating whether two additional data points at either end of the score scale
 should be added to the target an dnon-target scores.  This corresponds to the Laplace prior, and
 has a result of limiting the magnitude of the optimal log-likelihood-ratio associated with the
-line segments of the convex hull of the ROC. 
+line segments of the convex hull of the ROC.
 """
-function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true) 
+function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true)
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
@@ -45,15 +45,15 @@ function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, colla
     Roc(pfa, pmiss, ch, θ, llr)
 end
 
-## this returns the target count (1's an 0's for targets and non targets) and scores, 
-## in the order of the scores. 
+## this returns the target count (1's an 0's for targets and non targets) and scores,
+## in the order of the scores.
 function sortscores{T<:Real}(tar::Vector{T}, non::Vector{T})
     x = vcat(tar, non)                     # order targets before non-targets
     so = sortperm(x)                       # sort order
     xo = x[so]                             # scores ordered
     tc = vcat(ones(Int, length(tar)), zeros(Int, length(non)))[so] # target count
     return xo, tc
-end    
+end
 
 ## bins scores that are the same into aggredated score counts
 function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
@@ -76,8 +76,8 @@ end
 ## This finds the change points on the ROC (the corner points)
 function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
     (const_pfa, const_pmiss) = map(a -> diff(a) .== 0, (pfa, pmiss)) # no changes
-    return [true; ! (const_pfa[1:end-1]  &  const_pfa[2:end] | 
-                     const_pmiss[1:end-1] & const_pmiss[2:end]); true]
+    return [true; .! (const_pfa[1:end-1]  .&  const_pfa[2:end] .|
+                     const_pmiss[1:end-1] .& const_pmiss[2:end]); true]
 end
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
@@ -104,7 +104,7 @@ function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool
     ch[index] = true
     ## LLR
     (Δpfa, Δpmiss) = map(a -> diff(a[ch]), (pfa, pmiss))
-    llr = log(abs(Δpmiss ./ Δpfa))[cumsum(ch)[1:end-1]]
+    llr = log.(abs.(Δpmiss ./ Δpfa))[cumsum(ch)[1:end-1]]
     if laplace
         return [true; ch[4:end-3]; true], llr[3:end-2]
     else
@@ -114,9 +114,9 @@ end
 
 ## returns positive number if test point is "left" of line (x1,y1) -- (x2,y2)
 ## positive: left, negative: right, zero: on
-## This works best with rationals, but that makes it slow 
+## This works best with rationals, but that makes it slow
 function isleft{T<:Real}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
-    (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1) 
+    (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1)
 end
 
 ## Andrew's Monotone Chain Algorithm, from http://geomalgorithms.com/a10-_hull-1.html
@@ -179,4 +179,4 @@ end
 
 ## R terminology, quantile function qnorm() and cumulative distribution pnorm()
 qnorm(x) = √2 * erfinv(2x-1)
-pnorm(x) = (1 + erf(x/√2)) / 2 
+pnorm(x) = (1 + erf(x/√2)) / 2

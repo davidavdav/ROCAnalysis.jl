@@ -13,7 +13,7 @@ function pav{T<:Real}(y::Vector{T})
     ci = 1
     i[ci] = l[ci] = 1
     yy[ci] = y[1]
-    for j=2:n
+    for j in 2:n
         ci += 1
         i[ci] = j
         l[ci] = 1
@@ -26,13 +26,13 @@ function pav{T<:Real}(y::Vector{T})
         end
     end
     while n > 0
-        for j=i[ci]:n
+        for j in i[ci]:n
             yy[j] = yy[ci]
         end
         n = i[ci] - 1
         ci -= 1
     end
-    yy
+    return yy
 end
 
 ## return the optimal log-likelihood ratios for target and non-target scores
@@ -43,7 +43,7 @@ function optllr{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace=true)
     o = sortperm([tar; non])
     pideal = zeros(ntar + nnon + 4laplace)
     ## set pideal=1 for target scores
-    for i=1:ntar+nnon
+    for i in 1:ntar+nnon
         if o[i] ≤ ntar         # tar sorted before non, a target score
             pideal[i+2laplace] = 1.0
         end
@@ -53,9 +53,9 @@ function optllr{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace=true)
     end
     ## optimal posterior, given monotonicity constraints
     popt = pav(pideal)          # optimal posterior
-    postlo = logit(popt)[1+2laplace:end-2laplace] # posterior log odds
+    postlo = logit.(popt)[1+2laplace:end-2laplace] # posterior log odds
     priorlo = log(length(tar) / length(non))
-    llrs = Array(T, ntar+nnon)
+    llrs = Array{T}(ntar + nnon)
     llrs[o] = postlo - priorlo
     llrs[1:ntar], llrs[ntar+1:end]
 end

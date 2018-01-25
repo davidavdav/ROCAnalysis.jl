@@ -14,8 +14,8 @@ function test_both(tar, non, e1, e2)
     eer2 = eer(tar, non)
     println("EERch = ", eer1)
     println("EER   = ", eer2)
-    @test_approx_eq e1 eer1
-    @test_approx_eq e2 eer2
+    @test e1 ≈ eer1
+    @test e2 ≈ eer2
 end
 
 test_both([0;2], [1], 1/3, 1/2)

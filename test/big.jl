@@ -15,19 +15,19 @@ tar =  2 + 2randn(1_000_000)
 non = -2 + 2randn(1_000_000)
 
 ## eer
-@test_approx_eq_eps eer(tar,non) pnorm(-1) 0.01
+@test eer(tar, non) ≈ pnorm(-1) atol=0.01
 
 ## eerch
 @time r = roc(tar, non)
-@test_approx_eq_eps eerch(r) pnorm(-1) 0.01
+@test eerch(r) ≈ pnorm(-1) atol=0.01
 
 ## AUC
 pauc = 0.0786496
-@test_approx_eq_eps auc(r) pauc 0.01
+@test auc(r) ≈ pauc atol=0.01
 auc(r, pfa=0.1)
 AUC(r, pfa=0.1)
 
 ## Cllr
 cllr2 = 0.5140558 ## Cllr for distributions with μ = ±2 and σ = 2, i.e., d'=2
-@test_approx_eq_eps cllr(tar,non) cllr2 0.01
-@test_approx_eq_eps mincllr(tar,non) cllr2 0.01
+@test cllr(tar, non) ≈ cllr2 atol=0.01
+@test mincllr(tar, non) ≈ cllr2 atol=0.01

@@ -32,7 +32,7 @@ peff(dcf::DCF) = peff(dcf.ptar, cfa=dcf.cfa, cmiss=dcf.cmiss)
 
  - `dcf::DCF`: a `DCF` object containing `ptar`, `cfa` and `cmiss`.
 """
-plo(ptar=0.5; cfa=1, cmiss=1) = logit(ptar) + log(cmiss ./ cfa)
+plo(ptar=0.5; cfa=1, cmiss=1) = logit.(ptar) + log.(cmiss ./ cfa)
 plo(dcf::DCF) = plo(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 
 ## Decision Cost Function: dcf = p_tar * C_miss * p_miss + (1-p_tar) * C_fa * p_fa
@@ -82,7 +82,7 @@ function ber{T1<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Real=
         nfa += x ≥ thres
     end
     ## the effective prior is sigmoid(plo), use sigmoid(-plo) for p_non for numerical stability
-    return sigmoid(plo) * nmiss / length(tar) + sigmoid(-plo) * nfa / length(non)
+    return sigmoid.(plo) * nmiss / length(tar) + sigmoid.(-plo) * nfa / length(non)
 end
 ## Both the prior log odds and the threshold may be an array.
 ## If the plo's are an array, the thresholds---if given---must be an array of the same size,
@@ -91,7 +91,7 @@ end
 ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Vector{T2}) = [ber(tar, non, plo, x) for x in thres]
 function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}, thres::Vector{T2}=-plo)
     size(plo) == size(thres) || error("Inconsistent vector lengths")
-    [ber(tar, non, x...) for x in zip(plo,thres)]
+    [ber(tar, non, x...) for x in zip(plo, thres)]
 end
 
 ## Use an _unclollapsed_ ROC for determining the Bayes error rate.
@@ -104,7 +104,7 @@ end
 ## First define a helper function, scalar and array versions
 function ber_famiss(r::Roc, field::Symbol, plo::Real, thres::Real=-plo)
     i = binsearch(thres, getfield(r, field)) + 1
-    return sigmoid(-plo) * r.pfa[i], sigmoid(plo) * r.pmiss[i]
+    return sigmoid.(-plo) * r.pfa[i], sigmoid.(plo) * r.pmiss[i]
 end
 function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Real, thres::Array{T})
     tuples = [ber_famiss(r, f, x) for x in thres]
@@ -149,7 +149,7 @@ function minber{T<:Real}(tar::Vector{T}, non::Vector{T}, plo::ArrayOrReal)
 end
 
 ## factor to normalize the Bayes error rate, for normalized bayes error rate (or normalized cdet)
-normfactor(plo) = 1 + exp(abs(plo))
+normfactor(plo) = 1 + exp.(abs.(plo))
 
 ## factor to convert Bayes error rates to actual / minimum costs.
 costfactor(d::DCF) = d.ptar .* d.cmiss + (1-d.ptar) .* d.cfa
@@ -188,6 +188,8 @@ The current values of the parameters of the DCF can be found using `getdcf()`.
 function setdcf(;ptar=0.5, cfa=1, cmiss=1, d=DCF(ptar, cfa, cmiss))
     global global_dcf = copy(d)
 end
+
+setdcf(d::DCF) = setdcf(d=d)
 ## set a default DCF
 setdcf()
 """
