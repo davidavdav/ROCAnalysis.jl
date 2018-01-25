@@ -3,11 +3,9 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-using Requires
-using DataFrames: AbstractDataFrame, DataFrame
-using DataArrays: DataArray, NA
+## Loading modules has been moved to the source files that actually use these modules.
 
-## using NumericFuns
+## These are just some functions from NumericalFuns that we somehow had to implement ourselves.
 
 logit(x::AbstractFloat) = log(x / (one(x) - x))
 logit(x::Real) = logit(float(x))

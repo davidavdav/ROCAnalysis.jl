@@ -1,9 +1,12 @@
 ## dcf.jl  Tests related to decision cost functions
 
 using Base.Test
-using DataFrames: readtable
+import CSV
+import GZip
 
-x = readtable("ru.2009.table.gz", separator='\t')
+x = GZip.open("ru.2009.table.gz") do fd
+    CSV.read(fd, delim='\t', truestring="TRUE", falsestring="FALSE")
+end
 tnt = TNT(x)
 tar, non = tnt.tar, tnt.non
 ruc = roc(tnt, collapse=false)

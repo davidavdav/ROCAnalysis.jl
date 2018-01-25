@@ -3,6 +3,10 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
+import Missings
+using DataArrays: DataArray
+using DataFrames: AbstractDataFrame, DataFrame
+
 ## We also implement most TNT arguments here.
 
 ## Accept a DataFrame with :target and :score columns to most functions
@@ -46,4 +50,4 @@ import DataFrames.DataFrame
 
  - `llr` the optimal log-likelihood-ratio score for all data points contributing to the ROC line segment from this line to the next
 """
-DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ); NA], chull=r.ch, llr=[DataArray(r.llr); NA])
+DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ); Missings.missing], chull=r.ch, llr=[DataArray(r.llr); Missings.missing])

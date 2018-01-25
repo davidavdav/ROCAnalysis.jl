@@ -3,6 +3,8 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
+using Requires
+
 @require Winston begin
     import Winston
 
