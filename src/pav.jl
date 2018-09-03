@@ -5,7 +5,7 @@
 ## This code is largely based on code from the Bosaris toolkit
 
 ## pav(y) returns the isotonic regression of the predictor y.
-function pav{T<:Real}(y::Vector{T})
+function pav(y::Vector{T}) where T<:Real
     yy = similar(y, Float64)
     n = length(y)
     i = similar(y, Int)         # index
@@ -36,7 +36,7 @@ function pav{T<:Real}(y::Vector{T})
 end
 
 ## return the optimal log-likelihood ratios for target and non-target scores
-function optllr{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace=true)
+function optllr(tar::Vector{T}, non::Vector{T}; laplace=true) where T<:Real
     ntar = length(tar)
     nnon = length(non)
     ntar > 0 && nnon > 0 || error("Lenghts must be nonzero")

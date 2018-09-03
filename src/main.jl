@@ -27,7 +27,7 @@ should be added to the target an dnon-target scores.  This corresponds to the La
 has a result of limiting the magnitude of the optimal log-likelihood-ratio associated with the
 line segments of the convex hull of the ROC.
 """
-function roc{T<:Real}(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true)
+function roc(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true) where T<:Real
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
@@ -47,7 +47,7 @@ end
 
 ## this returns the target count (1's an 0's for targets and non targets) and scores,
 ## in the order of the scores.
-function sortscores{T<:Real}(tar::Vector{T}, non::Vector{T})
+function sortscores(tar::Vector{T}, non::Vector{T}) where T<:Real
     x = vcat(tar, non)                     # order targets before non-targets
     so = sortperm(x)                       # sort order
     xo = x[so]                             # scores ordered
@@ -56,7 +56,7 @@ function sortscores{T<:Real}(tar::Vector{T}, non::Vector{T})
 end
 
 ## bins scores that are the same into aggredated score counts
-function binscores{T<:Real}(xo::Vector{T},tc::Vector{Int})
+function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
     nc = 1 - tc
     changes = find([true; diff(xo) .!= 0; true]) # points where threshold change
     θ = xo                                       # threshold
@@ -81,7 +81,7 @@ function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
 end
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
-function chllr{T}(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true)
+function chllr(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=true) where T
     if laplace
         tc = [1; 0; tc; 1; 0]
         nc = [0; 1; nc; 0; 1]
@@ -115,7 +115,7 @@ end
 ## returns positive number if test point is "left" of line (x1,y1) -- (x2,y2)
 ## positive: left, negative: right, zero: on
 ## This works best with rationals, but that makes it slow
-function isleft{T<:Real}(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T)
+function isleft(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T) where T<:Real
     (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1)
 end
 
@@ -123,7 +123,7 @@ end
 ## (ignoring the C-code:-)
 ## points are (pmiss, pfa), pmiss (x) is increasing, pfa (y) is decreasing
 ## we implictly add a point at (2,2) that is on the convex hull
-function rochull{T<:Real}(pfa::Vector{T}, pmiss::Vector{T})
+function rochull(pfa::Vector{T}, pmiss::Vector{T}) where T<:Real
     two = 2one(T)
     n = length(pmiss)
     ## minmin and minmax

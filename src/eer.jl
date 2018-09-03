@@ -26,7 +26,7 @@ eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 
 ## compute the EER given corresponding pfa and pmiss array, but use the
 ## convex hull points only.
-function eerch{T<:AbstractFloat}(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector)
+function eerch(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector) where T<:AbstractFloat
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
     chi = find(ch)
@@ -66,11 +66,11 @@ approximately equal.
 For a more consistent interpretation and implementation of the EER, please consider `eerch()`,
 the Equal Error Rate - Convex Hull computation.
 """
-eer{T<:Real}(tar::Vector{T}, non::Vector{T}) = eer_sorted(sort(tar), sort(non))
+eer(tar::Vector{T}, non::Vector{T}) where {T<:Real} = eer_sorted(sort(tar), sort(non))
 eer(r::Roc) = eerch(r.pfa, r.pmiss, trues(length(r.pfa)))
 
 ## if tar and non are sorted, we may be doing even faster...
-function eer_sorted{T<:Real}(tar::Vector{T}, non::Vector{T})
+function eer_sorted(tar::Vector{T}, non::Vector{T}) where T<:Real
     ntar = length(tar)
     nnon = length(non)
     ntar > 0 && nnon > 0 || error("target and non-target arrays must not be empty")
@@ -105,7 +105,7 @@ end
 
 ## Returns the index to the largest value in the sorted array `a` ≤ `x` if lower==false
 ## If lower==true, the value must be strictly < `x`
-function binsearch{T<:Real}(x::Real, a::Vector{T}; lower=false, check=false)
+function binsearch(x::Real, a::Vector{T}; lower=false, check=false) where T<:Real
     check && (issorted(a) || error("Array needs to be sorted"))
     mi = 1
     ma = length(a)
@@ -129,7 +129,7 @@ end
 ## The idea is that you don't need to sort multiple times if you have
 ## multiple selections.  This cannot be accurate for cases where
 ## `tar` and `non` have the same value
-function eer_so{T<:Integer}(so::Vector{T}, ntar::T, selection::BitVector)
+function eer_so(so::Vector{T}, ntar::T, selection::BitVector) where T<:Integer
     length(so) == length(selection) || error("selection not the same length as sort order")
     eer(so[findin(so, find(selection))], ntar)
 end
@@ -137,7 +137,7 @@ end
 ## This computes the actual approximate eer from sortorder and number of targets and nontargets
 ## The sort order "so" may be a subset of an original sort order, "thres" should be the
 ## original number of targets.
-function eer_so{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
+function eer_so(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres)) where T<:Integer
     nnon = length(so) - ntar
     Δfa = 1. / nnon
     Δmiss = 1. / ntar
@@ -159,7 +159,7 @@ function eer_so{T<:Integer}(so::Vector{T}, thres::T, ntar::T=sum(so .<= thres))
 end
 
 ## experimental routine for timing and optimization...
-function eer_experimental{T}(tar::Vector{T}, non::Vector{T}; method=:naive, fast=true)
+function eer_experimental(tar::Vector{T}, non::Vector{T}; method=:naive, fast=true) where T
     ntar = length(tar)
     nnon = length(non)
     @time scores = vcat(non,tar)      # 1

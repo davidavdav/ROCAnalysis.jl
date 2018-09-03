@@ -73,7 +73,7 @@ may be `collapse`d.
 optimum described above.  This can be used if the scores are not
 correctly calibrated.
 """
-function ber{T1<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Real=-plo)
+function ber(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Real=-plo) where T1<:Real
     nmiss = nfa = 0
     for x in tar
         nmiss += x ≤ thres
@@ -88,8 +88,8 @@ end
 ## If the plo's are an array, the thresholds---if given---must be an array of the same size,
 ## because it doesn't really make sense to evaluate different cost functions with the same threshold.
 ## For larger arrays of thres or plo, it is faster to use the Roc version below
-ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Vector{T2}) = [ber(tar, non, plo, x) for x in thres]
-function ber{T1<:Real,T2<:Real}(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}, thres::Vector{T2}=-plo)
+ber(tar::Vector{T1}, non::Vector{T1}, plo::Real, thres::Vector{T2}) where {T1<:Real,T2<:Real} = [ber(tar, non, plo, x) for x in thres]
+function ber(tar::Vector{T1}, non::Vector{T1}, plo::Vector{T2}, thres::Vector{T2}=-plo) where {T1<:Real,T2<:Real}
     size(plo) == size(thres) || error("Inconsistent vector lengths")
     [ber(tar, non, x...) for x in zip(plo, thres)]
 end
@@ -106,11 +106,11 @@ function ber_famiss(r::Roc, field::Symbol, plo::Real, thres::Real=-plo)
     i = binsearch(thres, getfield(r, field)) + 1
     return sigmoid.(-plo) * r.pfa[i], sigmoid.(plo) * r.pmiss[i]
 end
-function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Real, thres::Array{T})
+function ber_famiss(r::Roc, f::Symbol, plo::Real, thres::Array{T}) where T<:Real
     tuples = [ber_famiss(r, f, x) for x in thres]
     return [ [ x[y] for x in tuples] for y in 1:2]
 end
-function ber_famiss{T<:Real}(r::Roc, f::Symbol, plo::Array{T}, thres::Array{T}=-plo)
+function ber_famiss(r::Roc, f::Symbol, plo::Array{T}, thres::Array{T}=-plo) where T<:Real
     size(plo) == size(thres) || error("Inconsistent vector lengths")
     tuples = [ber_famiss(r, f, x) for x in plo]
     return [ [ x[y] for x in tuples] for y in 1:2]
@@ -120,8 +120,8 @@ end
 ber_famiss(r::Roc, plo::ArrayOrReal, thres=-plo) = ber_famiss(r, :θ, plo, thres)
 
 ber(r::Roc, plo::Real, thres::Real=-plo) = +(ber_famiss(r, plo, thres)...)
-ber{T<:Real}(r::Roc, plo::Real, thres::Array{T}) = [ber(r, plo, x) for x in thres]
-ber{T<:Real}(r::Roc, plo::Array{T}, thres::Array{T}=-plo) = [ber(r, x...) for x in zip(plo,thres)]
+ber(r::Roc, plo::Real, thres::Array{T}) where {T<:Real} = [ber(r, plo, x) for x in thres]
+ber(r::Roc, plo::Array{T}, thres::Array{T}=-plo) where {T<:Real} = [ber(r, x...) for x in zip(plo,thres)]
 
 ## minimum ber is best computed using a Roc structure
 minber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :llr, plo)
@@ -140,10 +140,10 @@ it is advantageous to compute a `Roc` object once.
 Arguments: see `ber()`.
 """
 minber(r::Roc, plo::Real) = +(minber_famiss(r, plo)...)
-minber{T<:Real}(r::Roc, plo::Array{T}) = [minber(r, x) for x in plo]
+minber(r::Roc, plo::Array{T}) where {T<:Real} = [minber(r, x) for x in plo]
 
 ## compute ROC if scores are given
-function minber{T<:Real}(tar::Vector{T}, non::Vector{T}, plo::ArrayOrReal)
+function minber(tar::Vector{T}, non::Vector{T}, plo::ArrayOrReal) where T<:Real
     r = roc(tar, non)
     return minber(r, plo)
 end
@@ -239,10 +239,6 @@ mindcf(tar::Vector, non::Vector; d::DCF=getdcf(), norm=false) = applyfactor(d, m
 mindcf(tnt::TNT; d::DCF=getdcf(), norm=false) = mindcf(tnt.tar, tnt.non, d=d, norm=norm)
 
 Base.show(io::IO, dcf::DCF) = print(io, "Ptar = ", dcf.ptar, ", Cfa = ", dcf.cfa, ", Cmiss = ", dcf.cmiss)
-
-if VERSION < v"0.5.0-dev+4356"
-    Base.writemime(io::IO, ::MIME"text/plain", dcf::DCF) = show(io, MIME"text/plain", dcf)
-end
 
 function Base.show(io::IO, ::MIME"text/plain", dcf::DCF)
     println(io, "Ptar = ", dcf.ptar, ", Cfa = ", dcf.cfa, ", Cmiss = ", dcf.cmiss)
