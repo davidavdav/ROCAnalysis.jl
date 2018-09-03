@@ -1,5 +1,5 @@
 julia 0.7
 Requires 0.4
 Missings 0.2
-DataArrays 0.7
 DataFrames 0.11
+SpecialFunctions 0.7

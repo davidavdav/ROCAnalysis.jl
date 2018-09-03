@@ -7,6 +7,10 @@
 ## These routines need a re-write, we can probably unroll a few loops
 ## and be more efficient with memory and sorting.
 
+using LinearAlgebra
+using Random
+import SpecialFunctions
+
 """
 `roc(tar, non; laplace, collapse)` computes the essential statistics for evaluation of the
 performance of a two-class classifier.  The true class of the scores is encoded in the
@@ -32,7 +36,7 @@ function roc(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
     ## now we can compute pmiss and pfa
-    pfa = [1; 1 - cumsum(nc)/length(non)]
+    pfa = [1; 1 .- cumsum(nc)/length(non)]
     pmiss = [0; cumsum(tc)/length(tar)]
     ## convex hull and llr
     ch, llr = chllr(tc, nc, xo, laplace=laplace)
@@ -57,8 +61,8 @@ end
 
 ## bins scores that are the same into aggredated score counts
 function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
-    nc = 1 - tc
-    changes = find([true; diff(xo) .!= 0; true]) # points where threshold change
+    nc = 1 .- tc
+    changes = findall([true; diff(xo) .!= 0; true]) # points where threshold change
     θ = xo                                       # threshold
     keep = trues(length(tc))
     @inbounds for i=1:length(changes)-1
@@ -67,7 +71,7 @@ function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
         if stop>start
             tc[start] = sum(tc[start:stop])
             nc[start] = sum(nc[start:stop])
-            keep[start+1:stop]= false
+            keep[start+1:stop] .= false
         end
     end
     (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
@@ -90,7 +94,7 @@ function chllr(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=tr
     ntar = sum(tc)
     nnon = sum(nc)
 #    if fast
-        pfa = [1; 1 - cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
+        pfa = [1; 1 .- cumsum(nc)/nnon] # use rationals for accuracy of the convex hull
         pmiss = [0; cumsum(tc)/ntar]
         index = rochull(pfa, pmiss)
 #    else
@@ -101,7 +105,7 @@ function chllr(tc::Vector{Int}, nc::Vector{Int}, xo::Vector{T}; laplace::Bool=tr
 #        index = sort(hull.vertices[:,1])[1:end-1]   # indices of the points on the CH
 #    end
     ch = falses(length(pfa))
-    ch[index] = true
+    ch[index] .= true
     ## LLR
     (Δpfa, Δpmiss) = map(a -> diff(a[ch]), (pfa, pmiss))
     llr = log.(abs.(Δpmiss ./ Δpfa))[cumsum(ch)[1:end-1]]
@@ -154,7 +158,7 @@ function rochull(pfa::Vector{T}, pmiss::Vector{T}) where T<:Real
         end
         push!(stack, i)
     end
-    unshift!(stack, minmax)
+    pushfirst!(stack, minmax)
     stack
 end
 
@@ -178,5 +182,5 @@ function Base.getindex(r::Roc, i::Integer)
 end
 
 ## R terminology, quantile function qnorm() and cumulative distribution pnorm()
-qnorm(x) = √2 * erfinv(2x-1)
-pnorm(x) = (1 + erf(x/√2)) / 2
+qnorm(x) = √2 * SpecialFunctions.erfinv(2x-1)
+pnorm(x) = (1 + SpecialFunctions.erf(x/√2)) / 2

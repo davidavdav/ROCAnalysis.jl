@@ -29,12 +29,13 @@ eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
 function eerch(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector) where T<:AbstractFloat
     @assert length(pfa) == length(pmiss) == length(ch)
     ## find the index on the ch where the crossing of pfa=pmiss occurs
-    chi = find(ch)
+    chi = findall(ch)
     i = chi[1]
     direction = sign(pfa[i] - pmiss[i]) # >0 if first pfa > pmiss
     ## does it pay off to do a binary search?  It should, really.
     li = i
-    for i in chi
+    for loop_variable in 1:length(chi)
+        i = chi[loop_variable]
         if sign(pfa[i] - pmiss[i]) != direction
             break
         end

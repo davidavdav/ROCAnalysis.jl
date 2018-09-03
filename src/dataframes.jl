@@ -4,7 +4,6 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 import Missings
-using DataArrays: DataArray
 using DataFrames: AbstractDataFrame, DataFrame
 
 ## We also implement most TNT arguments here.
@@ -14,8 +13,8 @@ using DataFrames: AbstractDataFrame, DataFrame
 TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not.
 """
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
-    t = convert(Array, x[target])
-    s = convert(Array, x[score])
+    t = collect(skipmissing(convert(Array, x[target])))
+    s = collect(skipmissing(convert(Array, x[score])))
     TNT(s[t], s[.!t])
 end
 
@@ -50,4 +49,4 @@ import DataFrames.DataFrame
 
  - `llr` the optimal log-likelihood-ratio score for all data points contributing to the ROC line segment from this line to the next
 """
-DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[DataArray(r.θ); Missings.missing], chull=r.ch, llr=[DataArray(r.llr); Missings.missing])
+DataFrame(r::Roc) = DataFrame(pfa=r.pfa, pmiss=r.pmiss, thres=[Array(r.θ); Missings.missing], chull=r.ch, llr=[Array(r.llr); Missings.missing])

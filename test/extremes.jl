@@ -5,7 +5,7 @@
 
 ## check some pathological cases where sorting and comparison of equal values plays a role
 
-using Base.Test
+using Test
 
 function test_both(tar, non, e1, e2)
     r = roc(tar, non)

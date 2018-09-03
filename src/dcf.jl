@@ -32,7 +32,7 @@ peff(dcf::DCF) = peff(dcf.ptar, cfa=dcf.cfa, cmiss=dcf.cmiss)
 
  - `dcf::DCF`: a `DCF` object containing `ptar`, `cfa` and `cmiss`.
 """
-plo(ptar=0.5; cfa=1, cmiss=1) = logit.(ptar) + log.(cmiss ./ cfa)
+plo(ptar=0.5; cfa=1, cmiss=1) = logit.(ptar) .+ log.(cmiss ./ cfa)
 plo(dcf::DCF) = plo(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 
 ## Decision Cost Function: dcf = p_tar * C_miss * p_miss + (1-p_tar) * C_fa * p_fa
@@ -149,10 +149,10 @@ function minber(tar::Vector{T}, non::Vector{T}, plo::ArrayOrReal) where T<:Real
 end
 
 ## factor to normalize the Bayes error rate, for normalized bayes error rate (or normalized cdet)
-normfactor(plo) = 1 + exp.(abs.(plo))
+normfactor(plo) = 1 .+ exp.(abs.(plo))
 
 ## factor to convert Bayes error rates to actual / minimum costs.
-costfactor(d::DCF) = d.ptar .* d.cmiss + (1-d.ptar) .* d.cfa
+costfactor(d::DCF) = d.ptar .* d.cmiss + (1 .- d.ptar) .* d.cfa
 
 ## to norm or not to norm
 function applyfactor(d::DCF, er, norm::Bool)

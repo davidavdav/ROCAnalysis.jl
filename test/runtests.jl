@@ -3,7 +3,9 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
+using LinearAlgebra
 using ROCAnalysis
+using Random
 
 include("extremes.jl")
 include("big.jl")

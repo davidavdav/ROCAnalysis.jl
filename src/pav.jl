@@ -55,7 +55,7 @@ function optllr(tar::Vector{T}, non::Vector{T}; laplace=true) where T<:Real
     popt = pav(pideal)          # optimal posterior
     postlo = logit.(popt)[1+2laplace:end-2laplace] # posterior log odds
     priorlo = log(length(tar) / length(non))
-    llrs = Array{T}(ntar + nnon)
-    llrs[o] = postlo - priorlo
+    llrs = Array{T}(undef, ntar + nnon)
+    llrs[o] = postlo .- priorlo
     llrs[1:ntar], llrs[ntar+1:end]
 end

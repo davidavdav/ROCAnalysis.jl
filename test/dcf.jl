@@ -1,6 +1,6 @@
 ## dcf.jl  Tests related to decision cost functions
 
-using Base.Test
+using Test
 import CSV
 import GZip
 
@@ -18,7 +18,7 @@ d = DCF(0.01, 1, 10)            # nist 2008
 @test peff(d) ≈ 1/10.9
 @test plo(d) ≈ -log(9.9)
 ## print
-show(STDOUT, MIME"text/plain"(), d)
+show(stdout, MIME"text/plain"(), d)
 println([d,d])
 
 lo = plo(d)
@@ -28,11 +28,11 @@ b = 0.03291547867387523
 @test ber(tar, non, lo) ≈ b
 @test ber(ruc, lo) ≈ b
 
-m = 0.03173675448189074
-@test minber(x, lo) ≈ m
-@test minber(tnt, lo) ≈ m
-@test minber(tar, non, lo) ≈ m
-@test minber(r, lo) ≈ m
+m1 = 0.03173675448189074
+@test minber(x, lo) ≈ m1
+@test minber(tnt, lo) ≈ m1
+@test minber(tar, non, lo) ≈ m1
+@test minber(r, lo) ≈ m1
 
 ## set a global DCF as well
 setdcf(cmiss=10)                # evalita 2009
@@ -44,11 +44,11 @@ for norm in (false, true)
     @test dcf(tar, non, d=d, norm=norm) ≈ c
     @test dcf(ruc, d=d, norm=norm) ≈ c
 
-    m = 0.034593062385260914 * 10^norm
-    @test mindcf(x, d=d, norm=norm) ≈ m
-    @test mindcf(tnt, d=d, norm=norm) ≈ m
-    @test mindcf(tar, non, d=d, norm=norm) ≈ m
-    @test mindcf(r, d=d, norm=norm) ≈ m
+    m2 = 0.034593062385260914 * 10^norm
+    @test mindcf(x, d=d, norm=norm) ≈ m2
+    @test mindcf(tnt, d=d, norm=norm) ≈ m2
+    @test mindcf(tar, non, d=d, norm=norm) ≈ m2
+    @test mindcf(r, d=d, norm=norm) ≈ m2
 
     ## global DCF
     c = 0.23094942466561763084 * 2^norm
@@ -57,11 +57,11 @@ for norm in (false, true)
     @test dcf(tar, non, norm=norm) ≈ c
     @test dcf(ruc, norm=norm) ≈ c
 
-    m = 0.21843024685287174003 * 2^norm
-    @test mindcf(x, norm=norm) ≈ m
-    @test mindcf(tnt, norm=norm) ≈ m
-    @test mindcf(tar, non,norm=norm) ≈ m
-    @test mindcf(ruc, norm=norm) ≈ m
+    m3 = 0.21843024685287174003 * 2^norm
+    @test mindcf(x, norm=norm) ≈ m3
+    @test mindcf(tnt, norm=norm) ≈ m3
+    @test mindcf(tar, non,norm=norm) ≈ m3
+    @test mindcf(ruc, norm=norm) ≈ m3
 end
 
 ## array
