@@ -24,7 +24,7 @@ entails the ability to produces target scores that are, typically, much higher t
 Calibration entails that for every individual `x` an optimal Bayes decision can be made if a 
 cost function is known.  
 """
-function cllr{T<:Real}(tar::Vector{T}, non::Vector{T})
+function cllr(tar::Vector{T}, non::Vector{T}) where T<:Real
     ct = cn = zero(T)
     for x in tar
         ct += softplus(-x)
@@ -41,4 +41,4 @@ end
 transformation of the data.  This allows for measuring the disrimination performance of
 a system in the units of `cllr`, which are bits. 
 """
-mincllr{T<:Real}(tar::Vector{T}, non::Vector{T}) = cllr(optllr(tar, non)...)
+mincllr(tar::Vector{T}, non::Vector{T}) where {T<:Real} = cllr(optllr(tar, non)...)

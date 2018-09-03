@@ -7,7 +7,7 @@ t5 = ([1:2], [0:1])
 
 ## pav(y) returns the isotonic regression of the predictor y.
 ## after W.J. Wilbur, L. Yeganova and W. Kim (2005)
-function pav{T<:Real}(y::Vector{T})
+function pav(y::Vector{T}) where T<:Real
     yy = convert(Vector{Float64}, y)
     N = length(y)
     F = [1:N]+1                 # forward pointer to intervals
