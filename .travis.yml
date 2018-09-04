@@ -6,5 +6,6 @@ julia:
 before_install:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
+  - set -ev
   - julia -e 'using InteractiveUtils; using Pkg; versioninfo(); Pkg.clone(pwd()); Pkg.build("ROCAnalysis")'
   - xvfb-run julia --check-bounds=yes -e 'using Pkg; Pkg.test("ROCAnalysis", coverage=true)'
