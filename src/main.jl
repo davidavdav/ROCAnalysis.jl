@@ -169,10 +169,13 @@ function Base.size(r::Roc, d::Integer)
     d==1 || error("Roc is a 1-dimensional structure")
     return length(r)
 end
-Base.start(r::Roc) = 1
-Base.done(r::Roc, state) = state>length(r)
-Base.endof(r::Roc) = length(r)
-Base.next(r::Roc, state) = (r[state], state+1)
+function Base.iterate(r::Roc, state::Integer = 1)
+    if state > length(r)
+        return nothing
+    else
+        return (r[state], state + 1)
+    end
+end
 function Base.getindex(r::Roc, i::Integer)
     if i == length(r)
         return (r.pfa[i], r.pmiss[i], Inf, r.ch[i], Inf)
