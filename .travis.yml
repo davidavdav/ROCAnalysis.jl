@@ -1,8 +1,13 @@
 sudo: false
 language: julia
 julia:
- - 1.0
-# - nightly
+  - "0.7"
+  - "1.0"
+  - "nightly"
+matrix:
+  allow_failures:
+    - julia: "nightly"
+  fast_finish: true
 before_install:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
