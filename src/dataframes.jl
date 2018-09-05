@@ -12,12 +12,10 @@ using DataFrames: AbstractDataFrame, DataFrame
 TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not.
 """
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
-    t::Vector = x[target]
-    s::Vector = x[score]
-    row_is_complete::Vector{Bool} = (.!(ismissing.(t))) .* (.!(ismissing.(s)))
-    t_complete::Vector = [t[row_is_complete]...]
-    s_complete::Vector = [s[row_is_complete]...]
-    TNT(s_complete[t_complete], s_complete[.!t_complete])
+    ok = .!(ismissing.(x[target]) .| ismissing.(x[score]))
+    t = BitArray(x[target][ok])
+    s = collect(skipmissing(x[score][ok]))
+    TNT(s[t], s[.!t])
 end
 
 for f in (:eer, :eerch, :auc, :cllr, :mincllr)
