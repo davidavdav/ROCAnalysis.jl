@@ -10,6 +10,6 @@ include("auc.jl")
 include("pav.jl")
 include("dcf.jl")
 
-include("plot.jl")
+include("plotrecipes.jl")
 
 include("dataframes.jl")

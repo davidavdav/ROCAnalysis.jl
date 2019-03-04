@@ -5,7 +5,7 @@ import CSV
 import GZip
 
 x = GZip.open("ru.2009.table.gz") do fd
-    CSV.read(fd, delim='\t', truestring="TRUE", falsestring="FALSE")
+    CSV.read(fd, delim='\t', truestrings=["TRUE"], falsestrings=["FALSE"])
 end
 tnt = TNT(x)
 tar, non = tnt.tar, tnt.non

@@ -187,3 +187,7 @@ end
 ## R terminology, quantile function qnorm() and cumulative distribution pnorm()
 qnorm(x) = √2 * SpecialFunctions.erfinv(2x-1)
 pnorm(x) = (1 + SpecialFunctions.erf(x/√2)) / 2
+
+function Base.show(io::IO, r::Roc)
+    print(io, "ROC curve with ", length(r), " points, of which ", sum(r.ch), " on the convex hull")
+end
