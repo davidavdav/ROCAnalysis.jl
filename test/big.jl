@@ -4,6 +4,7 @@
 ## Licensed under the MIT software license, see LICENSE.md
 
 using Test
+import Random
 
 ## Note that due to the random sample, some of these test may fail every once in a while,
 ## So let's set a seed

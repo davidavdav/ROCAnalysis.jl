@@ -65,7 +65,7 @@ function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
     changes = findall([true; diff(xo) .!= 0; true]) # points where threshold change
     θ = xo                                       # threshold
     keep = trues(length(tc))
-    @inbounds for i=1:length(changes)-1
+    @inbounds for i in 1 : length(changes) - 1
         start = changes[i]
         stop = changes[i+1]-1
         if stop>start
@@ -119,9 +119,7 @@ end
 ## returns positive number if test point is "left" of line (x1,y1) -- (x2,y2)
 ## positive: left, negative: right, zero: on
 ## This works best with rationals, but that makes it slow
-function isleft(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T) where T<:Real
-    (x2 - x1)*(yt - y1) - (xt - x1)*(y2 - y1)
-end
+isleft(x1::T, y1::T, x2::T, y2::T, xt::T, yt::T) where T <: Real = (x2 - x1) * (yt - y1) - (xt - x1) * (y2 - y1)
 
 ## Andrew's Monotone Chain Algorithm, from http://geomalgorithms.com/a10-_hull-1.html
 ## (ignoring the C-code:-)
@@ -142,9 +140,9 @@ function rochull(pfa::Vector{T}, pmiss::Vector{T}) where T<:Real
     minmin = i
     minmax = 1
     ## maxmin and maxmax
-    maxmin = maxmax = n+1       # virtual point for now
+    maxmin = maxmax = n + 1       # virtual point for now
     stack = [minmin]
-    for i=minmin+1:n
+    for i in minmin + 1 : n
         if isleft(pmiss[minmin], pfa[minmin], two, two, pmiss[i], pfa[i]) ≥ zero(T)
             continue
         end
@@ -159,7 +157,7 @@ function rochull(pfa::Vector{T}, pmiss::Vector{T}) where T<:Real
         push!(stack, i)
     end
     pushfirst!(stack, minmax)
-    stack
+    return stack
 end
 
 ## some support for standard Julia functions
@@ -185,8 +183,8 @@ function Base.getindex(r::Roc, i::Integer)
 end
 
 ## R terminology, quantile function qnorm() and cumulative distribution pnorm()
-qnorm(x) = √2 * SpecialFunctions.erfinv(2x-1)
-pnorm(x) = (1 + SpecialFunctions.erf(x/√2)) / 2
+qnorm(x) = √2 * SpecialFunctions.erfinv(2x - 1)
+pnorm(x) = (1 + SpecialFunctions.erf(x / √2)) / 2
 
 function Base.show(io::IO, r::Roc)
     print(io, "ROC curve with ", length(r), " points, of which ", sum(r.ch), " on the convex hull")

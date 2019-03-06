@@ -9,11 +9,10 @@ using Test
 
 function test_both(tar, non, e1, e2)
     r = roc(tar, non)
-#    rocplot(r)
     eer1 = eerch(r)
     eer2 = eer(tar, non)
-    println("EERch = ", eer1)
-    println("EER   = ", eer2)
+    #println("EERch = ", eer1)
+    #println("EER   = ", eer2)
     @test e1 ≈ eer1
     @test e2 ≈ eer2
 end
