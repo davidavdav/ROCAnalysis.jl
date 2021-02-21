@@ -2,11 +2,15 @@
 
 using Test
 import CSV
-import GZip
+using DataFrames
+using CodecZlib
+using Mmap
 
-x = GZip.open("ru.2009.table.gz") do fd
-    CSV.read(fd, delim='\t', truestrings=["TRUE"], falsestrings=["FALSE"])
+x = open("ru.2009.table.gz") do file
+    CSV.File(transcode(GzipDecompressor, Mmap.mmap("ru.2009.table.gz"));
+    delim='\t', truestrings=["TRUE"], falsestrings=["FALSE"]) |> DataFrame
 end
+
 tnt = TNT(x)
 tar, non = tnt.tar, tnt.non
 ruc = roc(tnt, collapse=false)

@@ -4,9 +4,9 @@ using Printf
 @recipe function plot(r::Roc{T}; convex_hull=false, traditional=false) where T
     ## defaults
     title --> "ROC"
-    xlabel --> "Pfa"
-    ylabel --> (traditional ? "Phit" : "Pmiss")
-    leg --> false
+    xguide --> "Pfa"
+    yguide --> (traditional ? "Phit" : "Pmiss")
+    legend --> false
     if convex_hull
         x = r.pfa[r.ch]
         y = r.pmiss[r.ch]
@@ -29,11 +29,11 @@ end
     r, = d.args
     ##default
     title --> "DET plot"
-    xlabel --> "Pfa (%)"
-    ylabel --> "Pmiss (%)"
-    leg --> false
-    xlim --> (qnorm(0.001), qnorm(0.5))
-    ylim --> (qnorm(0.001), qnorm(0.5))
+    xguide --> "Pfa (%)"
+    yguide --> "Pmiss (%)"
+    legend --> false
+    xlims --> (qnorm(0.001), qnorm(0.5))
+    ylims --> (qnorm(0.001), qnorm(0.5))
     linewidth --> 2
     ## Not trivial in Plots.jl to control ticks and ticklabels
     ticks --> qnorm.([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 40] ./ 100)
@@ -66,15 +66,15 @@ end
     end
     r, = ape.args
     title --> "Applied Probability of Error"
-    xlabel --> "prior log odds"
-    ylabel --> "Bayes' error rate"
-    labels --> ["Bayes' Error", "Minimum", "Trivial"]
-    linecolors --> [:red :green :black]
+    xguide --> "prior log odds"
+    yguide --> "Bayes' error rate"
+    label --> ["Bayes' Error" "Minimum" "Trivial"]
+    linecolor --> [:red :green :black]
     lo = collect(xmin:0.01:xmax)
     be = ber(r, lo)
     mbe = minber(r, lo)
     defbe = 1 ./ ROCAnalysis.normfactor(lo)
-    ylim --> (0, 1.1maximum(be))
+    ylims --> (0, 1.1maximum(be))
     x = lo
     y = hcat(be, mbe, defbe)
     (x,y)
@@ -88,12 +88,12 @@ end
     end
     r, = nbe.args
     title --> "Normalized Bayes' Error"
-    xlabel --> "prior log odds"
-    ylabel --> "normalized Bayes' error"
-    labels --> ["Bayes' Error", "Minimum BE", "False Alarms", "Misses", "Minimum FA", "Minimum miss"]
-    leg --> :left
-    linestyles --> [:solid :solid :dash :dot :dash :dot]
-    linecolors --> [:red :green :red :red :green :green]
+    xguide --> "prior log odds"
+    yguide --> "normalized Bayes' error"
+    label --> ["Bayes' Error" "Minimum BE" "False Alarms" "Misses" "Minimum FA" "Minimum miss"]
+    legend --> :left
+    linestyle --> [:solid :solid :dash :dot :dash :dot]
+    linecolor --> [:red :green :red :red :green :green]
     lo = collect(xmin:0.01:xmax)
     norm = ROCAnalysis.normfactor(lo)
     bfa, bmiss = [be .* norm for be in ROCAnalysis.ber_famiss(r, lo)]
@@ -113,13 +113,13 @@ end
     end
     r, = llr.args
     title --> "LLR plot"
-    xlabel --> "score"
-    ylabel --> "log likelihood ratio"
-    leg --> false
+    xguide --> "score"
+    yguide --> "log likelihood ratio"
+    legend --> false
     llr_extrema = extrema(filter(x -> !isinf(x), r.llr))
     mi = max(llr_extrema[1], minimum(r.θ)) ## max of mins
     ma = min(llr_extrema[2], maximum(r.θ)) ## min of maxs
-    xlim --> (mi, ma)
-    ylim --> (mi, ma)
+    xlims --> (mi, ma)
+    ylims --> (mi, ma)
     (r.θ, r.llr)
 end

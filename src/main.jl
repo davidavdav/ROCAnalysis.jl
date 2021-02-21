@@ -59,7 +59,7 @@ function sortscores(tar::Vector{T}, non::Vector{T}) where T<:Real
     return xo, tc
 end
 
-## bins scores that are the same into aggredated score counts
+## bins scores that are the same into aggregated score counts
 function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
     nc = 1 .- tc
     changes = findall([true; diff(xo) .!= 0; true]) # points where threshold change
@@ -77,11 +77,12 @@ function binscores(xo::Vector{T},tc::Vector{Int}) where T<:Real
     (tc, nc, θ) = map(a -> a[keep], (tc, nc, θ))
     return θ, tc, nc, keep
 end
+
 ## This finds the change points on the ROC (the corner points)
 function changepoints(pfa::Vector{Float64}, pmiss::Vector{Float64})
     (const_pfa, const_pmiss) = map(a -> diff(a) .== 0, (pfa, pmiss)) # no changes
-    return [true; .! (const_pfa[1:end-1]  .&  const_pfa[2:end] .|
-                     const_pmiss[1:end-1] .& const_pmiss[2:end]); true]
+    return [true; .!((const_pfa[1:end-1] .& const_pfa[2:end]) .|
+        (const_pmiss[1:end-1] .& const_pmiss[2:end])); true]
 end
 
 ## compute convex hull and optimal llr from target count, nontarget count, and ordered scores
