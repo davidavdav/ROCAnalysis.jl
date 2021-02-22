@@ -6,10 +6,8 @@ using DataFrames
 using CodecZlib
 using Mmap
 
-x = open("ru.2009.table.gz") do file
-    CSV.File(transcode(GzipDecompressor, Mmap.mmap("ru.2009.table.gz"));
+x = CSV.File(transcode(GzipDecompressor, Mmap.mmap("ru.2009.table.gz"));
     delim='\t', truestrings=["TRUE"], falsestrings=["FALSE"]) |> DataFrame
-end
 
 tnt = TNT(x)
 tar, non = tnt.tar, tnt.non
