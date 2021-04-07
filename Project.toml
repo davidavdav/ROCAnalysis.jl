@@ -6,7 +6,7 @@ version = "0.3.2"
 [compat]
 julia = "1"
 RecipesBase = "1"
-SpecialFunctions = "0.7 - 1"
+SpecialFunctions = "0.7, 0.8, 0.9, 0.10, 1"
 DataFrames = "0.20, 0.21, 0.22"
 
 [deps]
