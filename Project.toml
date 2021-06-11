@@ -1,7 +1,7 @@
 name = "ROCAnalysis"
 uuid = "f535d66d-59bb-5153-8d2b-ef0a426c6aff"
 repo = "https://github.com/davidavdav/ROCAnalysis.jl.git"
-version = "0.3.2"
+version = "0.3.3"
 
 [compat]
 julia = "1"
