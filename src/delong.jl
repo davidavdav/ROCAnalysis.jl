@@ -27,9 +27,6 @@ function V₀₁(X::Vector{N},Y::Vector{N}) where {N<:Real}
 end
     
 function S₁₀(tars, nontars, θs)
-    ms = length.(tars)
-    ns = length.(nontars)
-    n_θ = length(θs)
     Xs = hcat(map(zip(tars, nontars, θs)) do (tar, nontar, θ)
         V₁₀.(tar, Y=nontar) .- θ
     end...)
@@ -37,9 +34,6 @@ function S₁₀(tars, nontars, θs)
 end
     
 function S₀₁(tars, nontars, θs)
-    ms = length.(tars)
-    ns = length.(nontars)
-    n_θ = length(θs)
     Xs = hcat(map(zip(tars, nontars, θs)) do (tar, nontar, θ)
         V₀₁.(nontar, X=tar) .- θ
     end...)
