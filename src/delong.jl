@@ -50,8 +50,8 @@ function delong_test(tar1, nontar1, tar2, nontar2)
     tars = [tar1[1:m], tar2[1:m]]
     nontars = [nontar1[1:n], nontar2[1:n]]
         
-    θ₁ = auc(roc(tar1, nontar1))
-    θ₂ = auc(roc(tar2, nontar2))
+    θ₁ = auc(tar1, nontar1)
+    θ₂ = auc(tar2, nontar2)
     θ  = [θ₁, θ₂]
         
     l = [1, -1]
