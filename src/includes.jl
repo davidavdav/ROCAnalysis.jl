@@ -13,3 +13,5 @@ include("dcf.jl")
 include("plotrecipes.jl")
 
 include("dataframes.jl")
+
+include("delong.jl")
