@@ -45,14 +45,6 @@ function S₀₁(tars, nontars, θs)
     end...)
     cov(Xs)
 end
-    
-function _relevant_reg_data(reg)
-    mask = reg.model.rr.y .== 1.0
-    preds = GLM.predict(reg)
-    tar = preds[mask]
-    nontar = preds[.!mask]
-    return tar, nontar
-end
         
 function delong_test(tar1, nontar1, tar2, nontar2)
     
