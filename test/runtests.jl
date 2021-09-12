@@ -10,3 +10,4 @@ using Random
 include("extremes.jl")
 include("big.jl")
 include("dcf.jl")
+include("delong.jl")
