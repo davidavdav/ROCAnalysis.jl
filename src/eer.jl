@@ -22,7 +22,7 @@ Arguments:
   the membership of the `(pfa, pmiss)` point on the convex hull.  These points are found by `roc()`.
 """
 eerch(r::Roc) = eerch(r.pfa, r.pmiss, r.ch)
-eerch(tar::Vector, non::Vector) = eerch(roc(tar, non))
+eerch(tar::AbstractVector, non::AbstractVector) = eerch(roc(tar, non))
 
 ## compute the EER given corresponding pfa and pmiss array, but use the
 ## convex hull points only.
@@ -67,11 +67,14 @@ approximately equal.
 For a more consistent interpretation and implementation of the EER, please consider `eerch()`,
 the Equal Error Rate - Convex Hull computation.
 """
-eer(tar::Vector{T}, non::Vector{T}) where {T<:Real} = eer_sorted(sort(tar), sort(non))
+eer(tar::AbstractVector{T}, non::AbstractVector{T}) where {T<:Real} = eer_sorted(sort(tar), sort(non))
 eer(r::Roc) = eerch(r.pfa, r.pmiss, trues(length(r.pfa)))
 
+## arrays with missing values
+eer(tar::AbstractVector, non::AbstractVector) = eer(remove_missing(tar), remove_missing(non))
+
 ## if tar and non are sorted, we may be doing even faster...
-function eer_sorted(tar::Vector{T}, non::Vector{T}) where T<:Real
+function eer_sorted(tar::AbstractVector{T}, non::AbstractVector{T}) where T<:Real
     ntar = length(tar)
     nnon = length(non)
     ntar > 0 && nnon > 0 || error("target and non-target arrays must not be empty")
@@ -106,7 +109,7 @@ end
 
 ## Returns the index to the largest value in the sorted array `a` ≤ `x` if lower==false
 ## If lower==true, the value must be strictly < `x`
-function binsearch(x::Real, a::Vector{T}; lower=false, check=false) where T<:Real
+function binsearch(x::Real, a::AbstractVector{T}; lower=false, check=false) where T<:Real
     check && (issorted(a) || error("Array needs to be sorted"))
     mi = 1
     ma = length(a)
@@ -167,26 +170,26 @@ function eer_experimental(tar::Vector{T}, non::Vector{T}; method=:naive, fast=tr
     @time so = sortperm(scores)       # 1
     @time truth = so .> nnon          # 1/64
     @time if !fast
-        pfa = 1.0 - cumsum(!truth)/nnon
-        pmiss = cumsum(truth)/ntar
+        pfa = 1.0 - cumsum(!truth) / nnon
+        pmiss = cumsum(truth) / ntar
     else                        # this takes less memory, but that's all I can say for it.
         Δ = 1/nnon
         pfa = similar(scores)   # 1
         s = one(T)
         for i=1:length(scores)
-            s -= Δ*!truth[i]
+            s -= Δ * !truth[i]
             pfa[i] = s
         end
         Δ = 1/ntar
         pmiss = similar(scores) # 1
         s = zero(T)
         for i=1:length(scores)
-            s += Δ*truth[i]
+            s += Δ * truth[i]
             pmiss[i] = s
         end
     end
     @time if method==:naive
-        i = indmin(abs(pfa-pmiss))
+        i = indmin(abs(pfa - pmiss))
         res = (pfa[i] + pmiss[i]) / 2
     end
     return res, (pfa, pmiss, scores[so]) # 1

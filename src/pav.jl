@@ -36,7 +36,7 @@ function pav(y::Vector{T}) where T<:Real
 end
 
 ## return the optimal log-likelihood ratios for target and non-target scores
-function optllr(tar::Vector{T}, non::Vector{T}; laplace=true) where T<:Real
+function optllr(tar::AbstractVector{T}, non::AbstractVector{T}; laplace=true) where T<:Real
     ntar = length(tar)
     nnon = length(non)
     ntar > 0 && nnon > 0 || error("Lenghts must be nonzero")
@@ -59,3 +59,6 @@ function optllr(tar::Vector{T}, non::Vector{T}; laplace=true) where T<:Real
     llrs[o] = postlo .- priorlo
     llrs[1:ntar], llrs[ntar+1:end]
 end
+
+## missing
+optllr(tar::AbstractVector, non::AbstractVector) = optllr(remove_missing(tar), remove_missing(non))

@@ -13,9 +13,9 @@ the numerator `H1` and denominator `H2` hypothesis are actually true in the log-
 
 where `x` is the test data for a system trying to disciminate between `H1` and `H2` given `x`.  
 
-The Cllr of a perfect system, assigning a llr of `+Inf` t otarget scores and `-Inf` to non-target scores
-is 0, for a system that is indifferent, producing a `llr=0` for every input `x` the `Cllr=1`.  
-Please note that, for badly calibrated systems, `Cllr>1`.  The units of Cllr are measured in _bits_, 
+The Cllr of a perfect system, assigning a llr of `+Inf` to target scores and `-Inf` to non-target scores
+is 0; for a system that is indifferent, producing a `llr=0` for every input `x`, the `Cllr = 1`.  
+Please note that, for badly calibrated systems, `Cllr > 1`.  The units of Cllr are measured in _bits_, 
 and cllr can be seen as the average amount of information per trial that is _not_ extracted from the 
 data. 
 
@@ -24,7 +24,7 @@ entails the ability to produces target scores that are, typically, much higher t
 Calibration entails that for every individual `x` an optimal Bayes decision can be made if a 
 cost function is known.  
 """
-function cllr(tar::Vector{T}, non::Vector{T}) where T<:Real
+function cllr(tar::AbstractVector{T}, non::AbstractVector{T}) where T<:Real
     ct = cn = zero(T)
     for x in tar
         ct += softplus(-x)
@@ -35,10 +35,13 @@ function cllr(tar::Vector{T}, non::Vector{T}) where T<:Real
     (ct / length(tar) + cn / length(non)) / 2log(2)
 end
 
+## missing
+cllr(tar::AbstractVector, non::AbstractVector) = cllr(remove_missing(tar), remove_missing(non))
+
 ## minimum Cllr: Cllr after optimal score-to-llr transformation
 """
 `mincllr(tar, non)` computes the `cllr` of target and non-target scores after an optimal
 transformation of the data.  This allows for measuring the disrimination performance of
 a system in the units of `cllr`, which are bits. 
 """
-mincllr(tar::Vector{T}, non::Vector{T}) where {T<:Real} = cllr(optllr(tar, non)...)
+mincllr(tar::AbstractVector, non::AbstractVector) = cllr(optllr(tar, non)...)

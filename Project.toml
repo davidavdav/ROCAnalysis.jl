@@ -1,7 +1,7 @@
 name = "ROCAnalysis"
 uuid = "f535d66d-59bb-5153-8d2b-ef0a426c6aff"
 repo = "https://github.com/davidavdav/ROCAnalysis.jl.git"
-version = "0.3.3"
+version = "0.3.4"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

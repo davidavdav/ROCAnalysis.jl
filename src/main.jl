@@ -31,7 +31,7 @@ should be added to the target an dnon-target scores.  This corresponds to the La
 has a result of limiting the magnitude of the optimal log-likelihood-ratio associated with the
 line segments of the convex hull of the ROC.
 """
-function roc(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true) where T<:Real
+function roc(tar::AbstractVector{T}, non::AbstractVector{T}; laplace::Bool=false, collapse=true) where T<:Real
     xo, tc = sortscores(tar, non)
     ## first collect point of the same threshold (for discrete score data)
     θ, tc, nc, = binscores(xo, tc)
@@ -48,6 +48,9 @@ function roc(tar::Vector{T}, non::Vector{T}; laplace::Bool=false, collapse=true)
     end
     Roc(pfa, pmiss, ch, θ, llr)
 end
+
+## Allow missing element in vector and ignore these
+roc(tar::AbstractVector, non::AbstractVector; laplace::Bool=false, collapse=true) = roc(remove_missing(tar), remove_missing(non), laplace=laplace, collapse=collapse)
 
 ## this returns the target count (1's an 0's for targets and non targets) and scores,
 ## in the order of the scores.

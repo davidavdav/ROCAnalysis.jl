@@ -7,6 +7,8 @@ module ROCAnalysis
 
 export Roc, DET, TNT, DCF, DataFrame, roc, chllr, eerch, pav, eer, plot, detplot, llrplot, apeplot, nbeplot, qnorm, pnorm, cllr, mincllr, auc, AUC, oeff, peff, plo, ber, minber, dcf, mindcf, setdcf, getdcf, sigmoid
 
+include("missing.jl")
+
 include("modules.jl")
 
 include("roctypes.jl")
