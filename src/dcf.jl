@@ -12,7 +12,7 @@
 
  - `dcf::DCF`: a `DCF` object containing `ptar`, `cfa` and `cmiss`.
 """
-oeff(ptar=0.5; cfa=1, cmiss=1) = (cmiss ./ cfa) .* (ptar ./ (1-ptar))
+oeff(ptar=0.5; cfa=1, cmiss=1) = (cmiss ./ cfa) .* (ptar ./ (1 .- ptar))
 oeff(dcf::DCF) = oeff(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 ## effective prior
 """
@@ -22,7 +22,7 @@ oeff(dcf::DCF) = oeff(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 
  - `dcf::DCF`: a `DCF` object containing `ptar`, `cfa` and `cmiss`.
 """
-peff(ptar=0.5; cfa=1, cmiss=1) = 1 ./ (1 + (cfa ./ cmiss) * ((1-ptar) ./ ptar))
+peff(ptar=0.5; cfa=1, cmiss=1) = 1 ./ (1 .+ (cfa ./ cmiss) * ((1 .- ptar) ./ ptar))
 peff(dcf::DCF) = peff(dcf.ptar, cfa=dcf.cfa, cmiss=dcf.cmiss)
 ## prior log odds
 """
