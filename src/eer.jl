@@ -5,7 +5,9 @@
 
 ## eerch: computes the eer using the convex hull method
 """
-`eerch()` computes the Equal Error Rate using the Convex Hull interpretation.  This computes the error
+    eerch(r::ROC) 
+
+Computes the Equal Error Rate using the Convex Hull interpretation.  This computes the error
 rate at which the convex hull of the ROC curve crosses the `y=x` diagonal in the ROC.
 
 This value is less sensitive to trial sampling at low number of trials, and has the interpretation of
@@ -42,25 +44,27 @@ function eerch(pfa::Vector{T}, pmiss::Vector{T}, ch::BitVector) where T<:Abstrac
         li = i
     end
     ## compute the crossing
-    (ax,bx) = pfa[[li,i]]
-    (ay,by) = pmiss[[li,i]]
+    (ax, bx) = pfa[[li,i]]
+    (ay, by) = pmiss[[li,i]]
     return crossing(ax, ay, bx, by)
 end
 
-## compute crossing with y=x points (ax,ay) and (bx,by)
+## compute crossing with y=x points (ax, ay) and (bx, by)
 function crossing(ax, ay, bx, by)
-    den = ax-ay-bx+by
+    den = ax - ay - bx + by
     if den == 0
         return (ax + bx + ay + by) / 4
     else
-        return ax + (ax-ay)*(bx-ax) / den
+        return ax + (ax - ay) * (bx - ax) / den
     end
 end
 
 ## just a simple EER approximation, optimized for memory and speed
 """
-`eer(tar, non)` computes a simple approximation to the Equal Error
-Rate, the intersection of the ROC with the line `y=x`, i.e., the error
+    eer(tar, non) 
+    
+Computes a simple approximation to the Equal Error Rate, 
+the intersection of the ROC with the line `y=x`, i.e., the error
 rate at which the false positive rate and the false negative rate are
 approximately equal.
 

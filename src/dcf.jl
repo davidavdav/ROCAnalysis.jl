@@ -6,7 +6,9 @@
 
 ## effective prior odds
 """
-`oeff()`, the effective prior odds given cost function parameters.  Arguments are either:
+    oeff()
+
+Computes the effective prior odds given cost function parameters.  Arguments are either:
 
  - `ptar, cfa, cmiss`: Scalars or Vectors of the prior of a target, the cost of a false positive and the cost of a false negative
 
@@ -14,9 +16,12 @@
 """
 oeff(ptar=0.5; cfa=1, cmiss=1) = (cmiss ./ cfa) .* (ptar ./ (1 .- ptar))
 oeff(dcf::DCF) = oeff(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
+
 ## effective prior
 """
-`peff()`, the effective prior given cost function parameters. Arguments are either:
+    peff()
+
+Computes the effective prior given cost function parameters. Arguments are either:
 
  - `ptar, cfa, cmiss`: Scalars or Vectors of the prior of a target, the cost of a false positive and the cost of a false negative
 
@@ -24,9 +29,12 @@ oeff(dcf::DCF) = oeff(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 """
 peff(ptar=0.5; cfa=1, cmiss=1) = 1 ./ (1 .+ (cfa ./ cmiss) * ((1 .- ptar) ./ ptar))
 peff(dcf::DCF) = peff(dcf.ptar, cfa=dcf.cfa, cmiss=dcf.cmiss)
+
 ## prior log odds
 """
-`plo()`, the prior log-odds given cost function parameters. Arguments are either:
+    plo()
+
+Computes the prior log-odds given cost function parameters. Arguments are either:
 
  - `ptar, cfa, cmiss`: Scalars or Vectors of the prior of a target, the cost of a false positive and the cost of a false negative
 
@@ -45,7 +53,9 @@ plo(dcf::DCF) = plo(dcf.ptar; cfa=dcf.cfa, cmiss=dcf.cmiss)
 ## However, because this routines is also used for dcf(), we allow a separate setting of
 ## the threshold.
 """
-`ber()`, the Bayes Error Rate.  This computes the expected error rate given a set of supervised trials,
+    ber()
+
+Computes the Bayes Error Rate.  This computes the expected error rate given a set of supervised trials,
 the log-likelihood-ratio scores `tar` and `non`, and a threshold based on a given a cost function
 specified by its prior log-odds (see `plo()`).
 
@@ -126,7 +136,9 @@ ber(r::Roc, plo::Array{T}, thres::Array{T}=-plo) where {T<:Real} = [ber(r, x...)
 ## minimum ber is best computed using a Roc structure
 minber_famiss(r::Roc, plo::ArrayOrReal) = ber_famiss(r, :llr, plo)
 """
-`minber()`: The minimum Byes Error Rate for a set of socres, found
+    minber()
+
+Computes the minimum Byes Error Rate for a set of scores, found
 after an optimal score-to-llr (log-likelihood-ratio) transformation.
 The optimal transformation corresponds to the convex hull of the ROC,
 where the optimal llr values correspont to the negative log of the
@@ -168,8 +180,11 @@ end
 
 ## Allow a default DCF to be set
 Base.copy(d::DCF) = DCF(d.ptar, d.cfa, d.cmiss)
+
 """
-`setdcf()` allows a global decision cost function to be set.  This DCF can be used in `dcf()` and `mindcf()`.   The decision cost function is defined as
+    setdcf()
+    
+Sets a global decision cost function.  This DCF can be used in `dcf()` and `mindcf()`.   The decision cost function is defined as
 
     dcf = ptar Cmiss pmiss + (1-ptar) Cfa pfa.
 
@@ -193,18 +208,22 @@ setdcf(d::DCF) = setdcf(d=d)
 ## set a default DCF
 setdcf()
 """
-`getdcf()` retrieves the current valua of the DCF parameters.
+    getdcf()
+    
+Retrieves the current valua of the DCF parameters.
 """
 getdcf() = global_dcf
 
 """
-`dcf()`.  Compute the classical decision cost function:
+    dcf()
+
+Computes the classical decision cost function:
 
     dcf = ptar Cmiss pmiss + (1-ptar) Cfa pfa.
 
 The _relative_ value of the cost function is only determined by the ratio
 
-    oeff = (ptar/(1-ptar) (Cmiss/Cfa).
+    oeff = (ptar / (1 - ptar)) * (Cmiss / Cfa).
 
 Therefore, this function is computed using `ber()` and scaling accordingly.  Arguments:
 
@@ -226,8 +245,9 @@ dcf(tnt::TNT; d::DCF=getdcf(), thres=-plo(d), norm=false) = dcf(tnt.tar, tnt.non
 dcf(r::Roc; d::DCF=getdcf(), thres=-plo(d), norm=false) = applyfactor(d, ber(r, plo(d), thres), norm)
 
 """
-
-`mindcf()` computes the minimum costs of the classical decision cost
+    mindcf()
+    
+Computes the minimum costs of the classical decision cost
 function (see `dcf()`) that can be obtained by varying the threshold.
 Arguments are the same as for `dcf()`, except that there is no
 threshold.

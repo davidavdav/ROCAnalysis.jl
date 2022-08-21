@@ -5,8 +5,9 @@
 
 ## TNT: a target-nontarget tuple
 """
-`TNT(tar, non`) is a type that holds target and non-target scores in a test for a two-class
-classifier.
+    TNT(tar, non)
+
+Holds target and non-target scores, resulting from a test for a two-class classifier.
 """
 struct TNT{T<:Real}
     """target scores (scofres for which, actually, the one hypothesis is true)"""
@@ -17,11 +18,13 @@ end
 
 ## Roc: essential data to store Receiver Operating Characteristics
 """
-`Roc` is a type that stores the essential performance information that can be extracted from a
+    ROC(pfa::Vector, pmiss::Vector, ch::BitArray, θ::Vector, llr::Vector)
+
+Stores the essential performance information that can be extracted from a
 set of supervised trials, i.e., target and non-target scores from a two-class classifier.  Apart from
-the (minimalized) arrays for probabilities of false-alarm and miss---the coordinates of the ROC
-curve---, they are the threshold for these, a boolean whether-or-not this point lies on the
-convex hull, and the associated optimal log-likelihood-ratio associated to the line segment.
+the (minimalized) arrays for probabilities of false-alarm `pfa` and miss `pmiss`---the coordinates of the ROC
+curve---, they are the threshold `θ` for these, a boolean whether-or-not this point lies on the
+convex hull `ch`, and the associated optimal log-likelihood-ratio `llr` associated to the line segment.
 """
 mutable struct Roc{T<:Real}
     pfa::Vector{Float64}        # probability of false alarm
@@ -33,8 +36,14 @@ end
 
 ## A traditional decision cost function
 """
-`DCF` is a type that holds one or more cost functions with which the performance of a two-class
-classifier can be assessed.  Any of the fields can be either a scalar or an array.
+    DCF(ptar, cfa, cmiss)
+
+Holds one or more cost functions with which the performance of a two-class
+classifier can be assessed.  Any of the fields can be either a scalar or an array. The cost function is 
+specified by:
+  - `ptar`: The prior probability of a target class
+  - `cfa`: The cost of a false alarm (false positive)
+  - `cmiss`: The cost of a miss (false negative)
 """
 struct DCF{PTT,CFT,CMT}
     ptar::PTT               # target prior

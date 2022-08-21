@@ -3,8 +3,10 @@
 ##
 ## Licensed under the MIT software license, see LICENSE.md
 
-"""`AUC(::roc; pfa=1.0, pmiss=1.0, normalize=true)` computes the Area Under the Curve
-with a sense `auc → 0` indicating better performance.
+"""
+    auc(::roc; pfa=1.0, pmiss=1.0, normalize=true)
+    
+Computes the Area Under the Curve with a sense `auc → 0` indicating better performance.
 
 Optional parameters `pfa` or `pmiss` limit integration over only part of the ROC curve.
 `normalize` indicates comparing the partial ROC to the trivial ROC.
@@ -38,8 +40,12 @@ end
 
 auc(tar::Vector, non::Vector; kwargs...) = auc(roc(tar, non); kwargs...)
 
-"""`AUC(::roc; pfa=1.0, pmiss=1.0, normalize=true)` computes the traditional Area Under the Curve
-with a sense `AUC → 1` indicating better performance.
+"""
+    AUC(::roc; pfa=1.0, pmiss=1.0, normalize=true)
+    
+computes the traditional Area Under the Curve with a sense `AUC → 1` indicating better performance.
+
+Roughly, we have `AUC(args) == 1 - auc(args)`.
 
 Optional parameters `pfa` or `pmiss` limit integration over only part of the ROC curve.
 `normalize` indicates comparing the partial ROC to the trivial ROC.

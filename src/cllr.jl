@@ -5,11 +5,13 @@
 
 ## Cllr for target and non-target scores
 """
-`cllr(tar, non)` computes the cost of the log-likelihood-ratio, for log-likelihood-ratio (llr) scores
+    cllr(tar, non)
+    
+Computes the cost of the log-likelihood-ratio, for log-likelihood-ratio (llr) scores
 `tar` and `non` (target scores and non-target scores).  Target an non-target llr's are those for which 
 the numerator `H1` and denominator `H2` hypothesis are actually true in the log-likelihood-ratio 
 
-    llr(x) = p(x|H1) / p(x|H2)
+    llr(x) = p(x | H1) / p(x | H2)
 
 where `x` is the test data for a system trying to disciminate between `H1` and `H2` given `x`.  
 
@@ -40,7 +42,9 @@ cllr(tar::AbstractVector, non::AbstractVector) = cllr(remove_missing(tar), remov
 
 ## minimum Cllr: Cllr after optimal score-to-llr transformation
 """
-`mincllr(tar, non)` computes the `cllr` of target and non-target scores after an optimal
+    mincllr(tar, non)
+
+Computes the `cllr` of target and non-target scores after an optimal
 transformation of the data.  This allows for measuring the disrimination performance of
 a system in the units of `cllr`, which are bits. 
 """

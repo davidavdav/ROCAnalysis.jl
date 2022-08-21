@@ -9,7 +9,14 @@ using DataFrames: AbstractDataFrame, DataFrame
 
 ## Accept a DataFrame with :target and :score columns to most functions
 """
-TNT(::DataFrame; optional-args) extracts target and non-target scores from a dataframe.  The optional arhuments encode which colums are used for what purpose. `score` (default `:score`) is the name of the column containing the classifier's scores.  `target` (default `:target`), of type `Bool`, determines whether this is a target score or not.
+    TNT(::DataFrame; optional-args) 
+
+Extracts target and non-target scores from a dataframe.  
+
+The optional arguments encode which colums are used for what purpose. 
+ 
+ - `score` (default `:score`) is the name of the column containing the classifier's scores.  
+ - `target` (default `:target`), of type `Bool`, determines whether this is a target score or not.
 """
 function TNT(x::AbstractDataFrame; score=:score, target=:target)
     ok = .!(ismissing.(x[!, target]) .| ismissing.(x[!, score]))
@@ -37,7 +44,9 @@ mindcf(x::AbstractDataFrame; score=:score, target=:target, d::DCF=getdcf(), norm
 
 import DataFrames.DataFrame
 """
-`Dataframe(::Roc)` converts a `Roc` object in a datframe with columns:
+    Dataframe(::Roc)
+
+Converts a `Roc` object in a datframe with columns:
 
  - `pfa` the false alarm rate
 

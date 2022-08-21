@@ -12,7 +12,9 @@ using Random
 import SpecialFunctions
 
 """
-`roc(tar, non; laplace, collapse)` computes the essential statistics for evaluation of the
+    roc(tar, non; laplace; collapse=true, laplace=false)` 
+    
+Computes the essential statistics for evaluation of the
 performance of a two-class classifier.  The true class of the scores is encoded in the
 array in which they appear, i.e., `tar`get or `non`-target scores.
 
@@ -27,7 +29,7 @@ on the ROC that have the same false positive or false negatove rate are removed,
 only the `corner' points of the ROC.
 
  - `laplace=false`, indicating whether two additional data points at either end of the score scale
-should be added to the target an dnon-target scores.  This corresponds to the Laplace prior, and
+should be added to the target and non-target scores.  This corresponds to the Laplace prior, and
 has a result of limiting the magnitude of the optimal log-likelihood-ratio associated with the
 line segments of the convex hull of the ROC.
 """
