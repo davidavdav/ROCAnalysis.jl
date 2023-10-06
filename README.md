@@ -2,6 +2,9 @@ ROCAnalysis.jl
 ======
 [![CI](https://github.com/davidavdav/ROCAnalysis.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/davidavdav/ROCAnalysis.jl/actions/workflows/CI.yml)
 
+
+![](roc_animation.gif)
+
 Install
 -------
 
